@@ -682,10 +682,9 @@
     top: 50%;
     transform: translate(-50%, -50%);
     border-radius: 10px;
-    /* display: flex;
-    flex-direction: row; */
     user-select: none;
     overflow: hidden;
+    display: none;
 
     background-color: rgb(35, 83, 196);
 }
@@ -758,7 +757,7 @@
 }
 .createGroupPage i{
     position: absolute;
-    right: 25px;
+    right: 0;
     top: 50%;
     transform: translate(-50%);
     font-size: 30px;
@@ -809,10 +808,100 @@
     font-size: 22px;
     padding: 0 25px;
     border-radius: 8px;
-    margin: 20px auto;
+    margin: 10px auto;
     border: none;
     background-color: #4388f6;
     cursor: pointer;
+}
+
+.joinGroupInfo{
+    width: 90%;
+    height: 200px;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+}
+.joiningGroupImgCont{
+    height: 160px;
+    width: 160px;
+    border-radius: 50%;
+    overflow: hidden;
+    background-color: rgb(4, 43, 114);
+}
+.joiningGroupImgCont img{
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+.joiningGroupInfoCont{
+    height: 100%;
+    width: calc(100% - 170px);
+}
+.joiningGroup_name{
+    width: 100%;
+    height: 30px;
+    margin-top: 6px;
+}
+.joiningGroup_name h1{
+    display: block;
+    width: 250px;
+    height: 100%;
+    font-family: 'Poppins', sans-serif;
+    font-size: 30px;
+    line-height: 28px;
+    color: #9CCCE8;
+
+    background-color: rgb(4, 43, 114);
+}
+.joiningGroup_numMembers{
+    height: 25px;
+    width: 100%;
+    margin-top: 6px;
+}
+.joiningGroup_numMembers h1{
+    font-family: 'Poppins', sans-serif;
+    font-size: 17px;
+    line-height: 17px;
+    width: 100px;
+    height: 100%;
+    display: inline-block;
+
+    background-color: rgb(4, 43, 114);
+}
+.joiningGroup_numMembers span{
+    font-family: 'Poppins', sans-serif;
+    font-weight: lighter;
+    font-size: 18px;
+    line-height: 18px;
+    width: 100px;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    display: inline-block;
+    margin-left: 5px;
+    margin-bottom: -2px;
+    color: rgb(27, 209, 249);
+}
+.joiningGroup_desc{
+    width: 100%;
+    height: 90px;
+    margin-top: 6px;
+    overflow-y: scroll;
+}
+.joiningGroup_desc::-webkit-scrollbar{
+    display: none;
+}
+.joiningGroup_desc h1{
+    font-family: 'Poppins', sans-serif;
+    font-weight: lighter;
+    font-size: 20px;
+    line-height: 20px;
+    width: 100%;
+    height: 100%;
+    display: block;
+
+    background-color: rgb(4, 43, 114);
 }
 
 

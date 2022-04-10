@@ -174,6 +174,34 @@ function displayJoinGroupPage(){
     }
 }
 
+function displayJoiningGroupInfo(groupImg, groupName, groupNumMembers, groupDesc){
+    let joiningGroupCont = document.getElementsByClassName("joinGroupInfo")[0];
+    let groupImgCont = joiningGroupCont.getElementsByClassName("joiningGroupImgCont")[0];
+    let groupInfoCont = joiningGroupCont.getElementsByClassName("joiningGroupInfoCont")[0];
+    let groupInfo_name = groupInfoCont.getElementsByClassName("joiningGroup_name")[0];
+    let groupInfo_numMembers = groupInfoCont.getElementsByClassName("joiningGroup_numMembers")[0];
+    let groupInfo_desc = groupInfoCont.getElementsByClassName("joiningGroup_desc")[0];
+
+    let imgObj = document.createElement("img");
+    imgObj.setAttribute("src", groupImg);
+    groupImgCont.appendChild(imgObj);
+
+    let nameObj = groupInfo_name.querySelector("h1");
+    nameObj.style.width = "fit-content";
+    nameObj.style.backgroundColor = "transparent";
+    nameObj.innerHTML = groupName;
+
+    let numMemberObj = groupInfo_numMembers.querySelector("h1");
+    numMemberObj.style.width = "fit-content";
+    numMemberObj.style.backgroundColor = "transparent";
+    numMemberObj.innerHTML = "Members: ";
+    groupInfo_numMembers.querySelector("span").innerHTML = groupNumMembers;
+
+    let descObj = groupInfo_desc.querySelector("h1");
+    descObj.style.backgroundColor = "transparent";
+    descObj.innerHTML = groupDesc;
+}
+
 for(var i=0; i < 15; i++){
     createGroupItem(`Test Group #${i}`,100,50,"https://iso.500px.com/wp-content/uploads/2016/03/stock-photo-142984111.jpg");
 }
