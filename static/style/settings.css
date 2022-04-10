@@ -1,0 +1,526 @@
+body{
+    margin: 0;
+    background-color: rgb(38, 49, 49);
+    min-width: 580px;
+}
+.topNav{
+    position: relative;
+    display: inline-block;
+    width: 100%;
+    height: 60px;
+
+    background-color: rgb(20, 20, 10);
+}
+.Logo{
+    display: inline-block;
+    color: rgb(42, 228, 228);
+    height: 100%;
+    width: 200px;
+    margin-left: 30px;
+
+}
+.Logo h1{
+    display: inline;
+    font-size: 55px;
+    font-family: 'Courier New', Courier, monospace;
+    user-select: none;
+}
+.navOptions{
+    float: right;
+    height: 100%;
+    width: 220px;
+    margin-right: 40px;
+}
+.optionBtn{
+    margin-top: 15px;
+    display: inline-block;
+    height: 50%;
+    width: 100px;
+    border-radius: 15px;
+    border: none;
+    background-color: rgb(47, 96, 185);
+    font-size: 18px;
+    cursor: pointer;
+}
+.Right{
+    float: right;
+}
+.optionBtn:hover{
+    background-color: rgb(42, 228, 228);
+}
+
+.updateAccount{
+    min-height: 300px;
+    width: 600px;
+    border-radius: 25px;
+    margin: 160px auto 40px auto;
+    padding-bottom: 40px;
+    user-select: none;
+
+    background: rgb(230, 230, 250,0.6);
+}
+.imgContainer{
+    display: block;
+    width: 200px;
+    height: 200px;
+    border-radius: 50%;
+    position: relative;
+    top: -110px;
+    left: 200px;
+    margin-bottom: -90px;
+    user-select: none;
+    cursor: pointer;
+}
+.imgContainer:hover .middle{
+    display: block;
+}
+.imgContainer:hover .uploadText{
+    display: block;
+}
+.profileImg{
+    display: block;
+    height: inherit;
+    width: inherit;
+    border-radius: inherit;
+}
+.middle{
+    display: none;
+    height: inherit;
+    width: inherit;
+    border-radius: inherit;
+    position: absolute;
+    top: 0;
+    opacity: 0.5;
+    background-color: rgb(0, 0, 0);
+}
+.uploadText{
+    display: none;
+    position: absolute;
+    top: 40%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 30px;
+    text-align: center;
+    color: white;
+}
+.updateUsername{
+    width: 500px;
+    height: 65px;
+    position: relative;
+    margin: auto;
+    border-radius: 8px;
+}
+.updateUsername:hover{
+    background-color: slategrey;
+}
+.usernameBanner{
+    height: 26px;
+    width: 100%;
+
+    border-bottom: 4px solid rgb(0, 17, 255);
+}
+.usernameBanner h1{
+    display: inline-block;
+    margin-top: -2px;
+    font-size: 25px;
+    font-family: 'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
+    font-weight: lighter;
+}
+.usernameInfo{
+    height: 65%;
+    width: 100%;
+
+}
+.usernameInfo h1{
+    display: inline-block;
+    margin-top: 0;
+    margin-left: 5px;
+    font-size: 20px;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+#userTag{
+    color: rgb(65, 97, 140);
+    border-radius: 5px;
+    cursor: pointer;
+}
+#userTag:hover{
+    color: rgb(42, 228, 228);
+    background-color: rgb(75, 101, 131);
+}
+.updatePassword{
+    width: 500px;
+    height: 65px;
+    position: relative;
+    margin: 10px auto;
+    border-radius: 8px;
+}
+.updatePassword:hover{
+    background-color: slategrey;
+}
+.passwordBanner{
+    height: 26px;
+    width: 100%;
+
+    border-bottom: 4px solid rgb(0, 17, 255);
+}
+.passwordBanner h1{
+    display: inline-block;
+    margin-top: -2px;
+    font-size: 25px;
+    font-family: 'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
+    font-weight: lighter;
+}
+.passwordInfo{
+    height: 65%;
+    width: 100%;
+}
+.passwordInfo h1{
+    display: inline-block;
+    margin-top: 0;
+    margin-left: 5px;
+    font-size: 20px;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+.updateEmail{
+    width: 500px;
+    height: 65px;
+    position: relative;
+    margin: 10px auto;
+    border-radius: 8px;
+}
+.updateEmail:hover{
+    background-color: slategrey;
+}
+.emailBanner{
+    height: 26px;
+    width: 100%;
+
+    border-bottom: 4px solid rgb(0, 17, 255);
+}
+.emailBanner h1{
+    display: inline-block;
+    margin-top: -2px;
+    font-size: 25px;
+    font-family: 'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
+    font-weight: lighter;
+}
+.emailInfo{
+    height: 65%;
+    width: 100%;
+}
+.emailInfo h1{
+    display: inline-block;
+    margin-top: 0;
+    margin-left: 5px;
+    font-size: 20px;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.updateRecovInfo{
+    width: 500px;
+    height: 65px;
+    position: relative;
+    margin: 10px auto;
+    border-radius: 8px;
+}
+.updateRecovInfo:hover{
+    background-color: slategrey;
+}
+.RecovBanner{
+    height: 26px;
+    width: 100%;
+
+    border-bottom: 4px solid rgb(0, 17, 255);
+}
+.RecovBanner h1{
+    display: inline-block;
+    margin-top: -2px;
+    font-size: 25px;
+    font-family: 'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
+    font-weight: lighter;
+}
+.RecovInfo{
+    height: 65%;
+    width: 100%;
+}
+.RecovInfo h1{
+    display: inline-block;
+    margin-top: 0;
+    margin-left: 5px;
+    font-size: 20px;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.editBtn{
+    border: none;
+    width: 60px;
+    height: 25px;
+    border-radius: 6px;
+    margin-top: 5px;
+    float: right;
+    margin-right: 10px;
+    background-color: skyblue;
+    cursor: pointer;
+}
+.editBtn h1{
+    font-family: 'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif;
+    font-weight: lighter;
+}
+
+.dimmer{
+    display: none;
+    background: #000;
+    opacity: 0.5;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 10;
+}
+
+.uploadImgForm{
+    width: 500px;
+    height: 490px;
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    border-radius: 15px;
+    display: none;
+    z-index: 11;
+    user-select: none;
+
+    background-color: rgb(109, 114, 185);
+}
+.uploadImgForm h1{
+    text-align: center;
+
+}
+#uploadBtns{
+    display: block;
+    position: relative;
+    width: 100%;
+    height: 35px;
+    margin: 10px auto 30px auto;
+}
+#uploadBtns button{
+    border: none;
+    height: inherit;
+    width: 100px;
+    border-radius: 10px;
+    position: absolute;
+    cursor: pointer;
+}
+.submitImg{
+    right: 30px;
+    background-color: rgb(57, 57, 236);
+}
+.submitImg:hover{
+    background-color: rgb(63, 211, 221);
+}
+.cancelImg{
+    right: 150px;
+    background-color: rgb(62, 119, 224);
+}
+.cancelImg:hover{
+    background-color: rgb(63, 211, 221);
+}
+#fileToUpload{
+    display: block;
+    margin: auto;
+}
+#uploadImg{
+    width: 200px;
+    height: 200px;
+    display: block;
+    margin: 10px auto;
+    border: 3px dashed black;
+}
+textarea:focus, input:focus{
+    outline: none;
+}
+.updateForm{
+    width: 500px;
+    min-height: 150px;
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    border-radius: 15px;
+    z-index: 11;
+    display: none;
+    background-color: rgb(109, 114, 185);
+    user-select: none;
+}
+.updateForm button{
+    width: 80px;
+    height: 30px;
+    border: none;
+    border-radius: 8px;
+    bottom: 20px;
+    cursor: pointer;
+    float: right;
+    margin-top: 20px;
+    margin-bottom: 20px;
+}
+.formError{
+    font-size: 15px;
+    display: inline-block;
+    position: relative;
+    left: 50px;
+    color: rgb(183, 5, 5);
+    margin: 0;
+}
+.updateText{
+    position: relative;
+    top: 20px;
+    left: 50px;
+    font-family: 'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif;
+    font-size: 20px;
+    margin-bottom: 20px;
+}
+.updateInput{
+    display: block;
+    margin: auto;
+    width: 80%;
+    height: 45px;
+    border-radius: 8px;
+    border: 2px solid rgb(109, 114, 185);
+    background-color: rgb(51, 50, 50);
+    font-size: 25px;
+}
+.invalidUpdateInput{
+    border: 2px solid red;
+}
+.verifyText{
+    position: relative;
+    top: 20px;
+    left: 50px;
+    font-family: 'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif;
+    font-size: 20px;
+    margin-bottom: 20px;
+}
+.verifyPword{
+    display: block;
+    margin: auto;
+    width: 80%;
+    height: 45px;
+    border-radius: 8px;
+    border: 2px solid rgb(109, 114, 185);
+    background-color: rgb(51, 50, 50);
+    font-size: 25px;
+}
+.invalidVerifyPword{
+    border: 2px solid red;
+}
+.cancelForm{
+    margin-right: 15px;
+    background-color: rgb(62, 119, 224);
+
+}
+.cancelForm:hover{
+    background-color: rgb(63, 211, 221);
+}
+.submitForm{
+    margin-right: 48px;
+    background-color: rgb(57, 57, 236);
+}
+.submitForm:hover{
+    background-color: rgb(63, 211, 221);
+}
+
+.drop_zone {
+    position: relative;
+    width:  300px;
+    height: 300px;
+    border: 5px dashed black;
+    margin: auto;
+}
+.drop_zone:hover{
+    background-color: rgb(130, 108, 160);
+}
+#bgPreview{
+    position: relative;
+    margin: 30px auto 0 auto;
+    display: block;
+    height: 190px;
+    width: 190px;
+
+}
+#previewSelected{
+    top: 0;
+    position: absolute;
+    height: inherit;
+    width: inherit;
+    display: none;
+}
+#imgError{
+    width: 100%;
+    height: 30px;
+    opacity: 0;
+}
+#imgError h1{
+    font-size: 20px;
+    text-align: center;
+    color: red;
+}
+#selectedImg{
+    display: none;
+}
+#inputText{
+    text-align: center;
+    display: block;
+    font-size: 20px;
+}
+#manualSelection{
+    color: blue;
+}
+.invalid{
+    border: 5px dashed red;
+}
+.valid{
+    border: 5px dashed green;
+}
+.upload{
+    height: 100%;
+    width: 100%;
+    display: block;
+}
+#errorMsg{
+    font-size: 20px;
+    display: block;
+    color: #d00000;
+    margin: auto;
+    text-align: center;
+    margin: 10px 0;
+}
+#successMsg{
+    font-size: 20px;
+    display: block;
+    color: rgb(2, 131, 66);
+    margin: auto;
+    text-align: center;
+    margin: 10px 0;
+}
+#updateStatus{
+    position: fixed;
+    width: auto;
+    height: 40px;
+    padding: 0 15px;
+    border-radius: 30px;
+    left: 50%;
+    bottom: 15%;
+    transform: translate(-50%);
+    background-color: rgb(55, 88, 207);
+    user-select: none;
+    display: none;
+}
+#updateStatus h1{
+    font-size: 20px;
+    font-family: 'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
+    text-align: center;
+    overflow: hidden;
+    white-space: nowrap;
+    margin-top: 8px;
+}

@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <title>UniChat | Settings</title>
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <link rel="stylesheet" href="./style/settings.css">
+        <script>
+            if(localStorage.getItem('user_id') === null){
+                window.location.href = "/";
+            }
+        </script>
+    </head>
+    <body>
+
+        <div class='topNav'>
+            <div class='Logo'><h1>UniChat</h1></div>
+            <div class='navOptions'>
+                <button onclick="gotoHomePage()" class="optionBtn">Home</button>
+                <button onclick="logout()" class='optionBtn Right'>Log Out</button>
+            </div>
+        </div>
+    
+        <div class="updateAccount">
+            <div onclick="uploadImgForm()" class="imgContainer">
+                <img class="profileImg"><script>document.getElementsByClassName('profileImg')[0].setAttribute('src','../uploads/userProfiles/'+localStorage.getItem('user_img'));</script>
+                <div class="middle"></div>
+                <h1 class="uploadText">Upload Image</h1>
+            </div>
+    
+            <div class="updateUsername">
+                <div class="usernameBanner"><h1>Username:</h1></div>
+                <div class="usernameInfo">
+                    <script>
+                        var item = document.getElementsByClassName('usernameInfo')[0];
+    
+                        var usernameObj = document.createElement('h1');
+                        usernameObj.textContent = localStorage.getItem('user_name');
+    
+                        var usertagObj = document.createElement('span');
+                        usertagObj.setAttribute('id','userTag');
+                        usertagObj.setAttribute('onclick','updateTag()');
+                        usertagObj.textContent = '#'+localStorage.getItem('user_tag');
+    
+                        $(usernameObj).append(usertagObj);
+                        item.appendChild(usernameObj);
+                    </script>
+                    <button class="editBtn" onclick="updateUsername()"><h1>Edit</h1></button>
+                </div>
+            </div>
+            <div class="updatePassword">
+                <div class="passwordBanner"><h1>Password:</h1></div>
+                <div class="passwordInfo">
+                    <h1>********</h1>
+                    <button class="editBtn" onclick="updatePword()"><h1>Edit</h1></button>
+                </div>
+            </div>
+            <div class="updateEmail">
+                <div class="emailBanner"><h1>Email:</h1></div>
+                <div class="emailInfo">
+                    <script>
+                        var emailItem = document.getElementsByClassName('emailInfo')[0];
+                        var emailObj = document.createElement('h1');
+                        emailObj.textContent = localStorage.getItem('user_email');
+                        emailItem.appendChild(emailObj);
+                    </script>
+                    <button class="editBtn" onclick="updateEmail()"><h1>Edit</h1></button>
+                </div>
+            </div>
+        </div>
+    
+        <div class="dimmer"></div>
+    
+        <form class="uploadImgForm">
+            <h1>Select Image to upload:</h1>
+            <input type="file" accept="image/*" onchange="validateSelectedImg(this)"  id="selectedImg" name="fileToUpload" required/>
+            <div for='selectedImg' class="drop_zone" accept='image/*'  ondragover="dragOverHandler(event)">
+                <img id="bgPreview" draggable="false" src="../uploads/defaults/upload.png">
+                <img id="previewSelected" draggable="false">
+                <h1 id="inputText"><label id="manualSelection" for='selectedImg'>Choose a file</label> or drag it here.</h1>
+            </div>
+            <div id="imgError"><h1></h1></div>
+            <div id="uploadBtns">
+                <button onclick="cancelImgUpload()" class="cancelImg" type="button">Cancel</button>
+                <button onclick="submitImgUpload()" class="submitImg" type="button" name="submit" disabled>Submit</button>
+            </div>
+        </form>
+    
+        <form class="updateForm" id="usernameForm">
+                <h1 class="updateText">Enter new username:</h1>
+                <input type="text" name="newUsername" class='updateInput' required>
+                <h1 class="formError"></h1>
+    
+                <h1 class="verifyText">Current Password:</h1>
+                <input type="password" name="verifyPword" class="verifyPword" required>
+                <h1 class="formError"></h1>
+            
+            <button type="submit" class="submitForm">Update</button>
+            <button type="button" onclick="closeUsername()" class="cancelForm">Cancel</button>
+        </form>
+    
+    
+        <form class="updateForm" id="passwordForm">
+            <h1 class="updateText">Enter new password:</h1>
+            <input type="password" name="newPword" class='updateInput'required>
+            <h1 class="formError"></h1>
+    
+            <h1 class="verifyText">Current Password:</h1>
+            <input type="password" name="verifyPword" class="verifyPword" required>
+            <h1 class="formError"></h1>
+            
+            <button type="submit" class="submitForm" name="submitPword">Update</button>
+            <button type="button" onclick="closePword()" class="cancelForm">Cancel</button>
+        </form>
+    
+        <form class="updateForm" id="emailForm">
+            <h1 class="updateText">Enter new email:</h1>
+            <input type="text" name="newEmail" class='updateInput'required>
+            <h1 class="formError"></h1>
+    
+            <h1 class="verifyText">Current Password:</h1>
+            <input type="password" name="verifyPword" class="verifyPword" required>
+            <h1 class="formError"></h1>
+            
+            <button type="submit" class="submitForm" name="submitEmail">Update</button>
+            <button type="button" onclick="closeEmail()" class="cancelForm">Cancel</button>
+        </form>
+        
+        <form class="updateForm" id="tagForm">
+            <h1 class="updateText">Enter new tag:</h1>
+            <input type="text" name="newTag" onkeypress="validTag(event)" placeholder="1234" class='updateInput'required>
+            <h1 class="formError"></h1>
+    
+            <h1 class="verifyText">Current Password:</h1>
+            <input type="password" name="verifyPword" class="verifyPword" required>
+            <h1 class="formError"></h1>
+    
+            <button type="submit" class="submitForm" name="submitTag">Update</button>
+            <button type="button" onclick="closeTag()" class="cancelForm">Cancel</button>
+        </form>
+    
+        <div id="updateStatus"><h1></h1></div>
+        
+        <script src="./script/settings.js" async defer></script>
+    </body>
+</html>

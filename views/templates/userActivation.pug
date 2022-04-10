@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <title>UniChat | Sign Up</title>
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <link rel="stylesheet" href="./style/userActivation.css">
+    </head>
+    <body>
+
+        <div class="statusCont" id="successCont">
+            <h1>Account Successfully Activated</h1>
+            <h2>Please continue to Log In Page</h2>
+            <button onclick="window.location.href='/'">Log In</button>
+        </div>
+        <div class="statusCont" id="failedCont">
+            <h1>An Error Had Occured</h1>
+            <h2>Something went terribly wrong.Lmaoo Sorry Mate.</h2>
+            <button onclick="window.location.href='/'">Return To Main Page</button>
+        </div>
+
+        script. 
+            var status = '#{ status }';
+            if(status === "success"){
+                document.getElementById('successCont').style.display = "block";
+            }else{
+               var failedCont =  document.getElementById('failedCont');
+               failedCont.querySelector('h2').innerHTML = '#{ reason }';
+               failedCont.style.display = "block";
+            }
+    </body>
+</html>

@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <title>UniChat</title>
+        <link rel="icon" href="https://upload.wikimedia.org/wikipedia/en/f/f4/Ridetl.png">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <link rel="stylesheet" href="./style/index.css">
+    </head>
+    <body>
+        <div class='topNav'>
+            <div class='Logo'><h1>UniChat</h1></div>
+            <div class='navOptions'>
+                <div class="userVisit">
+                    <button class='optionBtn' onclick="window.location.href='/home'">Home</button>
+                    <button class='optionBtn Right' onclick='logout()'>Log Out</button>
+                </div>
+                <div class="guestVisit">
+                    <button class='optionBtn' onclick="window.location.href='/login'">Log In</button>
+                    <button class='optionBtn Right' onclick="window.location.href='/signup'">Sign Up</button>
+                </div>
+            </div>
+        </div>
+        
+        <script src="./script/index.js" async defer></script>
+    </body>
+</html>

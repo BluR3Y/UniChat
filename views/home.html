@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <title>UniChat | Feed</title>
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <link rel="stylesheet" href="./style/home.css">
+        <script src="https://kit.fontawesome.com/79dc948593.js" crossorigin="anonymous"></script>
+    </head>
+    <body>
+        <div class="pageHeader">
+            <div class="siteLogo"><h1>UniChat</h1></div>
+            <div class="signOutCont"><button onclick="showSideNav()">Sign Out</button></div>
+        </div>
+        <div class="pageContent">
+            <div class="sideNav showSideNav">
+                <div class="userProfile">
+                    <div class="userImgCont">
+                        <img src="https://media.istockphoto.com/photos/silhouette-of-man-in-dark-place-anonymous-backlit-contour-a-picture-id1139459625?b=1&k=20&m=1139459625&s=170667a&w=0&h=zVpBlAmdwUDWIVf0Zxtb3idMCitol4nzII2qde8Ybag=">
+                        <h1 id="hiddenUserName">reyf</h1>
+                    </div>
+                    <div class="userInfo">
+                        <h1>reyf</h1>
+                        <h2>1234</h2>
+                    </div>
+                    <div class="userEditInfo">
+                        <i class="fa-solid fa-screwdriver-wrench"></i>
+                    </div>
+                </div>
+                <div class="groupCont">
+                    <div class="groupFilterSection">
+                        <div class="groupFilterCont">
+                            <div class="groupBanner">
+                                <h1>Groups</h1>
+                            </div>
+                            <div class="groupFilters">
+                                <button class="groupFilterItem selectedGroupFilter">All</button>
+                                <button class="groupFilterItem">Favorite</button>
+                                <button class="groupFilterItem">Created</button>
+                            </div>
+                            <div class="addGroupCont">
+                                <button>+</button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="groupFilterDivider"></div>
+                    <div class="userGroups"> 
+                        <!--
+                            group item template:
+                             <div class="userGroupItem" onmouseenter="groupHiddenInfoShow(this.getBoundingClientRect())" onmouseleave="groupHiddenInfoHide()">
+                            <div class="groupImgCont">
+                                <img src="https://iso.500px.com/wp-content/uploads/2016/03/stock-photo-142984111.jpg">
+                            </div>
+                            <div class="groupInfo">
+                                <h1 class="groupName">Test Group</h1>
+                                <div class="groupStats">
+                                    <h1 class="groupMembers">Members: <span>100</span></h1>
+                                    <h1 class="groupOnlineMembers">Online: <span>402</span></h1>
+                                </div>
+                            </div>
+                        </div> -->
+                    </div>
+                    <div class="groupHiddenCont">
+                        <div class="groupHiddenPointer"></div>
+                        <div class="groupHiddenInfo">
+                            <h1 class="groupNameHidden">Hello</h1>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="homeContent">
+                <div class="homeHeader">
+                    <div class="defaultHeader">
+                        <div class="friendsFilterCont">
+                            <div class="friendsFilterBanner">
+                                <h1>Friends</h1>
+                            </div>
+                            <div class="friendFilters">
+                                <div class="friendFilterItem selectedFriendFilter">All</div>
+                                <div class="friendFilterItem">Online</div>
+                                <div class="friendFilterItem addFriendBtn">Add</div>
+                            </div>
+                            <div class="userFriendsCont" onmousewheel="scrollFriendList(event.deltaY)">
+                                <div class="userFriendItem">
+                                    <div class="friendImgCont">
+                                        <img src="https://media.istockphoto.com/photos/silhouette-of-man-in-dark-place-anonymous-backlit-contour-a-picture-id1139459625?b=1&k=20&m=1139459625&s=170667a&w=0&h=zVpBlAmdwUDWIVf0Zxtb3idMCitol4nzII2qde8Ybag=">
+                                    </div>
+                                    <div class="friendNameCont">
+                                        <h1>Rey F</h1>
+                                    </div>
+                                </div>
+                            </div>
+
+
+
+
+
+                            
+                        </div>
+                    </div>
+                    <div class="groupChatHeader">
+                        <h1 id="viewingChatName">Programming Chat</h1>
+                    </div>
+                    <div class="directChatHeader">
+                        
+                    </div>
+                </div>
+                <div class="mainDisplay">
+
+                </div>
+            </div>
+        </div>
+        
+        <script src="./script/home.js" async defer></script>
+    </body>
+</html>

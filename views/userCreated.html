@@ -1,0 +1,152 @@
+<html>
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <title>Unichat | Sign Up</title>
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <style>
+            @import url('https://fonts.googleapis.com/css2?family=Poppins&display=swap');
+            * {
+                margin: 0;
+            }
+
+            body {
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                width: 100vw;
+                height: 100vh;
+                background-color: #173371;
+            }
+
+            .statusCont {
+                width: 500px;
+                height: auto;
+                padding: 10px 0 20px 0;
+                position:absolute;
+                border: 2px solid black;
+                background-color: rgb(88, 88, 88);
+                border-radius: 8px;
+                top: -500px;
+                font-family: 'Poppins',sans-serif;
+            }
+            .statusCont h1{
+                font-size: 25px;
+                text-align: center;
+            }
+            .statusCont h2{
+                font-size: 20px;
+                text-align: center;
+            }
+
+            @keyframes displayStatus {
+                0%{
+                    top: -500px;
+                }25%{
+                    top: 50px;
+                }50%{
+                    top: 50px;
+                }75%{
+                    top: 50px;
+                }100%{
+                    top: -500px;
+                }
+            }
+
+            .resendForm {
+                width: 650px;
+                height: auto;
+                border: 2px solid black;
+                border-radius: 8px;
+                background-color: rgb(37, 68, 134);
+                position: relative;
+                padding-bottom: 30px;
+            }
+            .resendForm h1{
+                font-family: 'Poppins',sans-sarif;
+                font-size: 28px;
+                text-align: center;
+            }
+            .resendForm h2{
+                font-family: 'Poppins', sans-serif;
+                font-size: 26px;
+                text-align: center;
+                color: aqua;
+            }
+            .resendForm button {
+                position: absolute;
+                width: 180px;
+                height: 40px;
+                border-radius: 20px;
+                border: none;
+                bottom: -20px;
+                left: 50%;
+                transform: translateX(-50%);
+                font-family: 'Poppins', sans-serif;
+                font-size: 15px;
+                background-color: rgb(43, 38, 38);
+                color: aqua;
+                cursor: pointer;
+            }
+        </style>
+    </head>
+    <body>
+        <div class="statusCont">
+            <h1></h1>
+            <h2></h2>
+        </div>
+        <form class="resendForm">
+            <h1>An Activation Link Has Been Sent To Your Email</h1>
+            <h2></h2>
+            <script>
+                document.getElementsByClassName('resendForm')[0].querySelector('h2').innerHTML = localStorage.getItem('resendEmail');
+            </script>
+            <button type="submit">Resend Link</button>
+        </form>
+        <script>
+            document.getElementsByClassName('resendForm')[0].addEventListener('submit', function(el) {
+                el.preventDefault();
+                let resendEmail = localStorage.getItem('resendEmail');
+                let resendLink = localStorage.getItem('resendLink');
+                let statusCont = document.getElementsByClassName('statusCont')[0];
+                var statusTitle = statusCont.querySelector('h1');
+                var statusInfo = statusCont.querySelector('h2');
+
+                if(resendEmail !== null && resendLink !== null) {
+
+                    var resendFormData = {
+                        'resendEmail': resendEmail,
+                        'resendLink': resendLink
+                    }
+
+                    fetch('/resendActivation', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({'resendForm':resendFormData})
+                    })
+                    .then((response) => response.json())
+                    .then((data) => {
+                        if(data['status'] === "success") {
+                            statusTitle.innerHTML = "Link Resent";
+                            statusInfo.innerHTML = "Another activation link has been resent";
+                            statusCont.style.color = "aqua";
+                            statusCont.style.animation = "displayStatus 6s ease";
+                        }else{
+                            statusTitle.innerHTML = "Invalid Credentials";
+                            statusInfo.innerHTML = "Invalid Email or Resend Link was provided";
+                            statusCont.style.color = "red";
+                            statusCont.style.animation = "displayStatus 6s ease";
+                        }
+                    })
+                }else{
+                    statusTitle.innerHTML = "Data Not Found";
+                    statusInfo.innerHTML = "Data regarding Resend Link is Not Found";
+                    statusCont.style.color = "red";
+                    statusCont.style.animation = "displayStatus 6s ease";
+                }
+            })
+        </script>
+    </body>
+</html>

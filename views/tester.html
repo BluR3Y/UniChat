@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <title>Test Page</title>
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <style>
+            * {
+                margin: 0;
+            }
+            .mainPage{
+                width: 100vw;
+                height: 100vh;
+            }
+            .sideCont{
+                /*height: 100%;
+                width: 400px; */
+                background-color: blue;
+                flex: 0 1 auto;
+                display: flex;
+                flex-direction: column;
+                overflow: scroll;
+            }
+            .contItem{
+                width: 80px;
+                height: 80px;
+                flex-shrink: 0;
+                margin: 0 4px;
+                display: flex;
+                flex-direction: column;
+                cursor: pointer;
+                background-color: yellow;
+                border-bottom: 1px solid black;
+            }
+            .contItem:hover{
+                background-color: aqua;
+            }
+        </style>
+    </head>
+    <body>
+        <div class="mainPage">
+            <div class="sideCont">
+                <div class="contItem"></div>
+                <div class="contItem"></div>
+                <div class="contItem"></div>
+                <div class="contItem"></div>
+                <div class="contItem"></div>
+                <div class="contItem"></div>
+                <div class="contItem"></div>
+                <div class="contItem"></div>
+                <div class="contItem"></div>
+                <div class="contItem"></div>
+                <div class="contItem"></div>
+                <div class="contItem"></div>
+            </div>
+        </div>
+        
+        <script src="" async defer></script>
+    </body>
+</html>
