@@ -4,6 +4,7 @@
 
 * {
     margin: 0;
+    box-sizing: border-box;
 }
 /*----------------------------------------- Page Header -------------------------------------*/
 
@@ -572,6 +573,249 @@
     opacity: 0.4;
     display: none;
 }
+/*--------------------------------- Add Friend Form ---------------------------------------------*/
+
+.addFriendForm{
+    width: 500px;
+    height: 250px;
+    position: fixed;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    border-radius: 10px;
+    display: none;
+    flex-direction: column;
+    align-items: center;
+    user-select: none;
+
+    background-color: rgb(35, 83, 196);
+}
+.addFriendForm i{
+    position: absolute;
+    right: 15px;
+    top: 10px;
+    font-size: 30px;
+    filter: invert();
+    cursor: pointer;
+}
+
+.formName{
+    font-family: 'Poppins', sans-serif;
+    text-align: center;
+    margin-top: 5px;
+    margin-bottom: 15px;
+}
+
+.formCont{
+    width: 90%;
+    height: 50px;
+    margin: 25px 0 10px 0;
+    border-radius: 10px;
+    position: relative;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+
+    background-color: rgb(72, 110, 197);
+}
+.formCont h1{
+    font-family: 'Poppins', sans-serif;
+    font-size: 20px;
+    position: absolute;
+    left: 0;
+    top: -30px;
+}
+.formCont h2{
+    font-family: 'poppins',sans-serif;
+    font-size: 25px;
+    font-weight: lighter;
+    padding: 0 3px;
+    height: fit-content;
+}
+.add_username{
+    height: 100%;
+    width: 75%;
+    border-radius: inherit;
+    background-color: rgb(72, 110, 197);
+    border: none;
+    outline: none;
+    font-family: 'Poppins', sans-serif;
+    font-size: 20px;
+}
+.add_usernameID{
+    height: 100%;
+    width: 20%;
+    border-radius: inherit;
+    background-color: rgb(72, 110, 197);
+    border: none;
+    outline: none;
+    font-family: 'Poppins', sans-serif;
+    font-size: 20px;
+}
+.addFriendForm button{
+    font-family: 'Poppins', sans-serif;
+    font-size: 20px;
+    border-radius: 8px;
+    border: none;
+    position: absolute;
+    bottom: 20px;
+    background-color: #6df4fb;
+    cursor: pointer;
+}
+.errorCont{
+    width: 90%;
+    height: auto;
+    font-family: 'Poppins', sans-serif;
+    font-size: 18px;
+    text-align: center;
+    color: rgb(255, 48, 48);
+    display: none;
+}
+
+/*---------------------------------- Add Group Form--------------------------------------------*/
+
+.addGroupForm{
+    width: 580px;
+    height: 380px;
+    position: fixed;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    border-radius: 10px;
+    /* display: flex;
+    flex-direction: row; */
+    user-select: none;
+    overflow: hidden;
+
+    background-color: rgb(35, 83, 196);
+}
+
+.addGroupPages{
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    overflow: hidden;
+    position: absolute;
+    transition: left 1s;
+}
+
+.groupSelectionPage{
+    left: 0;
+}
+
+.closeGroupForm{
+    position: absolute;
+    right: 15px;
+    top: 10px;
+    font-size: 30px;
+    filter: invert();
+    cursor: pointer;
+    z-index: 2;
+}
+
+.addGroupSelectionCont{
+    width: 90%;
+    height: 280px;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-around;
+    cursor: pointer;
+}
+
+.addGroup_SelectionItem{
+    height: 100%;
+    width: 220px;
+    border-radius: 8px;
+    display: flex;
+    flex-direction: column;
+    background-color: rgb(62, 127, 239);
+}
+.addGroup_SelectionItem:hover{
+    background-color: #196ff8;
+}
+.addGroup_SelectionItem h1{
+    font-family: 'Poppins', sans-serif;
+    font-size: 20px;
+    text-align: center;
+    margin: 5px auto 8px auto;
+    border-bottom: 3px solid black;
+    width: fit-content;
+}
+.addGroup_SelectionItem h2{
+    font-family: 'Poppins', sans-serif;
+    font-size: 18px;
+    margin: 0 auto;
+    width: 90%;
+    height: 90%;
+    text-align: center;
+    line-height: 24px;
+}
+
+.createGroupPage{
+    left: -580px;
+}
+.createGroupPage i{
+    position: absolute;
+    right: 25px;
+    top: 50%;
+    transform: translate(-50%);
+    font-size: 30px;
+    filter: invert();
+    cursor: pointer;
+    z-index: 2;
+}
+
+
+.joinGroupPage{
+    left: 580px;
+}
+.joinGroupPage i{
+    position: absolute;
+    left: 25px;
+    top: 50%;
+    transform: translate(-50%);
+    font-size: 30px;
+    filter: invert();
+    cursor: pointer;
+    z-index: 2;
+}
+.joinGroupInput{
+    width: 90%;
+    height: 50px;
+    margin: 40px 0 10px 0;
+    border-radius: 10px;
+    position: relative;
+}
+.joinGroupInput h1{
+    font-family: 'Poppins', sans-serif;
+    font-size: 20px;
+    position: absolute;
+    left: 0;
+    top: -30px;
+}
+.joinGroupInput input{
+    width: 100%;
+    height: 100%;
+    border-radius: inherit;
+    border: none;
+    outline: none;
+    font-family: 'Poppins', sans-serif;
+    font-size: 20px;
+}
+.joinGroupPage button{
+    font-family: 'Poppins', sans-serif;
+    font-size: 22px;
+    padding: 0 25px;
+    border-radius: 8px;
+    margin: 20px auto;
+    border: none;
+    background-color: #4388f6;
+    cursor: pointer;
+}
+
+
 /*------------------------------------------------------------------------------*/
 /*------------------------------------------------------------------------------*/
 /*------------------------------------------------------------------------------*/
@@ -579,4 +823,21 @@
 /*------------------------------------------------------------------------------*/
 /*------------------------------------------------------------------------------*/
 /*------------------------------------------------------------------------------*/
-/*------------------------------------------------------------------------------*/
+
+/* form input format: 
+.formCont h1{
+    font-family: 'Poppins', sans-serif;
+    font-size: 20px;
+    position: absolute;
+    left: 0;
+    top: -30px;
+}
+.formCont input{
+    width: 100%;
+    height: 100%;
+    border-radius: inherit;
+    border: none;
+    outline: none;
+    font-family: 'Poppins', sans-serif;
+    font-size: 20px;
+} */

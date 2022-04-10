@@ -40,7 +40,7 @@
                                 <button class="groupFilterItem">Created</button>
                             </div>
                             <div class="addGroupCont">
-                                <button>+</button>
+                                <button onclick="displayAddGroupForm()">+</button>
                             </div>
                         </div>
                     </div>
@@ -79,7 +79,8 @@
                             <div class="friendFilters">
                                 <div class="friendFilterItem selectedFriendFilter">All</div>
                                 <div class="friendFilterItem">Online</div>
-                                <div class="friendFilterItem addFriendBtn">Add</div>
+                                <div class="friendFilterItem">Pending</div>
+                                <div class="friendFilterItem addFriendBtn" onclick="displayAddFriendForm()">Add</div>
                             </div>
                             <div class="userFriendsCont" onmousewheel="scrollFriendList(event.deltaY)">
                                 <div class="userFriendItem">
@@ -111,6 +112,48 @@
             </div>
         </div>
         <div class="pageDimmer"></div>
+        <form class="addFriendForm">
+            <h1 class="formName">Add Friend</h1>
+            <i class="fa-solid fa-xmark" onclick="displayAddFriendForm()"></i>
+            <div class="formCont">
+                <h1>Username:</h1>
+                <input type="text" class="add_username" required>
+                <h2>#</h2>
+                <input type="text" class="add_usernameID" required>
+            </div>
+            <div class="errorCont">Test Message</div>
+            <button type="submit">Sent Invitation</button>
+        </form>
+        <div class="addGroupForm">
+            <i class="fa-solid fa-xmark closeGroupForm" onclick="displayAddGroupForm()"></i>
+            <div class="createGroupPage addGroupPages">
+                <h1 class="formName">Create Group</h1>
+                <i class="fa-solid fa-arrow-right" onclick="displayCreateGroupPage()"></i>
+            </div>
+            <div class="groupSelectionPage addGroupPages">
+                <h1 class="formName">Add Group</h1>
+                <div class="addGroupSelectionCont">
+                    <div class="addGroup_SelectionItem" onclick="displayCreateGroupPage()">
+                        <h1>Create a Group</h1>
+                        <h2>Have an idea for a community that doesn't currently exist? Want to initialize what could potentially be one of the best communities ever? If so, this option is just right for you.</h2>
+                    </div>
+                    <div class="addGroup_SelectionItem" onclick="displayJoinGroupPage()">
+                        <h1>Join a Group</h1>
+                        <h2>Want to be a part of something bigger than yourself? Are you in dire need of meeting new people with similar likes and interests? Your solution is just one click away.</h2>
+                    </div>
+                </div>
+            </div>
+            <form class="joinGroupPage addGroupPages">
+                <h1 class="formName">Join Group</h1>
+                <i class="fa-solid fa-arrow-left" onclick="displayJoinGroupPage()"></i>
+
+                <div class="joinGroupInput">
+                    <h1>Group ID</h1>
+                    <input type="text" required>
+                </div>
+                <button>Join</button>
+            </form>
+        </div>
         
         <script src="./script/home.js" async defer></script>
     </body>

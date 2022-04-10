@@ -119,10 +119,58 @@ function scrollFriendList(scrollDirection){
 function dimPage(){
     let pageDimmer = document.getElementsByClassName("pageDimmer")[0];
 
-    if(pageDimmer.style.display = "none"){
-        pageDimmer.style.display = "block";
-    }else{
+    if(pageDimmer.style.display === "block"){
         pageDimmer.style.display = "none";
+    }else{
+        pageDimmer.style.display = "block";
+    }
+}
+
+function displayAddFriendForm(){
+    var friendForm = document.getElementsByClassName("addFriendForm")[0];
+
+    if(friendForm.style.display === "flex"){
+        friendForm.style.display = "none";
+    }else{
+        friendForm.style.display = "flex";
+    }
+    dimPage();
+}
+
+function displayAddGroupForm(){
+    var groupForm = document.getElementsByClassName("addGroupForm")[0];
+
+    if(groupForm.style.display === "flex"){
+        groupForm.style.display = "none";
+    }else{
+        groupForm.style.display = "flex";
+    }
+    dimPage();
+}
+
+function displayCreateGroupPage(){
+    var selectionPage = document.getElementsByClassName("groupSelectionPage")[0];
+    var createGroupPage = document.getElementsByClassName("createGroupPage")[0];
+
+    if(selectionPage.style.left !== "580px"){
+        selectionPage.style.left = "580px";
+        createGroupPage.style.left = "0";
+    }else{
+        selectionPage.style.left = "0";
+        createGroupPage.style.left = "-580px";
+    }
+}
+
+function displayJoinGroupPage(){
+    var selectionPage = document.getElementsByClassName("groupSelectionPage")[0];
+    var joinGroupPage = document.getElementsByClassName("joinGroupPage")[0];
+
+    if(selectionPage.style.left !== "-580px"){
+        selectionPage.style.left = "-580px";
+        joinGroupPage.style.left = "0";
+    }else{
+        selectionPage.style.left = "0";
+        joinGroupPage.style.left = "580px";
     }
 }
 
