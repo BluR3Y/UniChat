@@ -139,9 +139,19 @@ function displayAddFriendForm(){
 
 function displayAddGroupForm(){
     var groupForm = document.getElementsByClassName("addGroupForm")[0];
+    let formCont = document.getElementsByClassName("addGroupForm")[0];
+    let groupSelectionPage = formCont.getElementsByClassName("groupSelectionPage")[0];
+    let createGroupPage = formCont.getElementsByClassName("createGroupPage")[0];
+    let joinGroupPage = formCont.getElementsByClassName("joinGroupPage")[0];
 
     if(groupForm.style.display === "flex"){
         groupForm.style.display = "none";
+        
+        if(createGroupPage.classList.contains("viewingPage")){
+            displayCreateGroupPage();
+        }else if(joinGroupPage.classList.contains("viewingPage")){
+            displayJoinGroupPage();
+        }
     }else{
         groupForm.style.display = "flex";
     }
@@ -152,12 +162,17 @@ function displayCreateGroupPage(){
     var selectionPage = document.getElementsByClassName("groupSelectionPage")[0];
     var createGroupPage = document.getElementsByClassName("createGroupPage")[0];
 
-    if(selectionPage.style.left !== "580px"){
+    if(selectionPage.classList.contains("viewingPage")){
         selectionPage.style.left = "580px";
-        createGroupPage.style.left = "0";
+        createGroupPage.style.left = "0px";
+        selectionPage.classList.remove("viewingPage");
+        createGroupPage.classList.add("viewingPage");
     }else{
-        selectionPage.style.left = "0";
+        selectionPage.style.left = "0px";
         createGroupPage.style.left = "-580px";
+        createGroupPage.classList.remove("viewingPage");
+        selectionPage.classList.add("viewingPage");
+        clearCreateGroupForm();
     }
 }
 
@@ -165,12 +180,17 @@ function displayJoinGroupPage(){
     var selectionPage = document.getElementsByClassName("groupSelectionPage")[0];
     var joinGroupPage = document.getElementsByClassName("joinGroupPage")[0];
 
-    if(selectionPage.style.left !== "-580px"){
+    if(selectionPage.classList.contains("viewingPage")){
         selectionPage.style.left = "-580px";
         joinGroupPage.style.left = "0";
+        selectionPage.classList.remove("viewingPage");
+        joinGroupPage.classList.add("viewingPage");
     }else{
         selectionPage.style.left = "0";
         joinGroupPage.style.left = "580px";
+        joinGroupPage.classList.remove("viewingPage");
+        selectionPage.classList.add("viewingPage");
+        clearJoinGroupForm();
     }
 }
 
@@ -201,6 +221,80 @@ function displayJoiningGroupInfo(groupImg, groupName, groupNumMembers, groupDesc
     descObj.style.backgroundColor = "transparent";
     descObj.innerHTML = groupDesc;
 }
+
+// function clearAddGroupForm(){
+    // let formCont = document.getElementsByClassName("addGroupForm")[0];
+    // let groupSelectionPage = formCont.getElementsByClassName("groupSelectionPage")[0];
+    // let createGroupPage = formCont.getElementsByClassName("createGroupPage")[0];
+    // let joinGroupPage = formCont.getElementsByClassName("joinGroupPage")[0];
+
+//     if(createGroupPage.classList.contains("viewingPage")){     // showing create form
+
+//     }else if(joinGroupPage.classList.contains("viewingPage")){  //showing join form
+        // let joiningGroupCont = document.getElementsByClassName("joinGroupInfo")[0];
+        // let groupImgCont = joiningGroupCont.getElementsByClassName("joiningGroupImgCont")[0];
+        // let groupInfoCont = joiningGroupCont.getElementsByClassName("joiningGroupInfoCont")[0];
+        // let groupInfo_name = groupInfoCont.getElementsByClassName("joiningGroup_name")[0];
+        // let groupInfo_numMembers = groupInfoCont.getElementsByClassName("joiningGroup_numMembers")[0];
+        // let groupInfo_desc = groupInfoCont.getElementsByClassName("joiningGroup_desc")[0];
+
+        // let imgObj = groupImgCont.querySelector("img");
+        // imgObj.remove();
+
+        // let nameObj = groupInfo_name.querySelector("h1");
+        // nameObj.innerHTML = "";
+        // nameObj.style.width = "250px";
+        // nameObj.style.backgroundColor = "rgb(4, 43, 114)";
+
+        // let numMemberObj = groupInfo_numMembers.querySelector("h1");
+        // numMemberObj.style.width = "100px";
+        // numMemberObj.style.backgroundColor = "rgb(4, 43, 114)";
+        // numMemberObj.innerHTML = "";
+        // groupInfo_numMembers.querySelector("span").innerHTML = "";
+    
+        // let descObj = groupInfo_desc.querySelector("h1");
+        // descObj.style.backgroundColor = "rgb(4, 43, 114)";
+        // descObj.innerHTML = "";
+//     }
+// }
+
+function clearJoinGroupForm(){
+    let joiningGroupCont = document.getElementsByClassName("joinGroupInfo")[0];
+    let groupImgCont = joiningGroupCont.getElementsByClassName("joiningGroupImgCont")[0];
+    let groupInfoCont = joiningGroupCont.getElementsByClassName("joiningGroupInfoCont")[0];
+    let groupInfo_name = groupInfoCont.getElementsByClassName("joiningGroup_name")[0];
+    let groupInfo_numMembers = groupInfoCont.getElementsByClassName("joiningGroup_numMembers")[0];
+    let groupInfo_desc = groupInfoCont.getElementsByClassName("joiningGroup_desc")[0];
+    let joinGroupInputCont = document.getElementsByClassName("joinGroupInput")[0];
+
+    let imgObj = groupImgCont.querySelector("img");
+    if(imgObj !== null){
+        imgObj.remove();
+
+        let nameObj = groupInfo_name.querySelector("h1");
+        nameObj.innerHTML = "";
+        nameObj.style.width = "250px";
+        nameObj.style.backgroundColor = "rgb(4, 43, 114)";
+    
+        let numMemberObj = groupInfo_numMembers.querySelector("h1");
+        numMemberObj.style.width = "100px";
+        numMemberObj.style.backgroundColor = "rgb(4, 43, 114)";
+        numMemberObj.innerHTML = "";
+        groupInfo_numMembers.querySelector("span").innerHTML = "";
+    
+        let descObj = groupInfo_desc.querySelector("h1");
+        descObj.style.backgroundColor = "rgb(4, 43, 114)";
+        descObj.innerHTML = "";
+    }
+
+    let joinGroupInput = joinGroupInputCont.querySelector("input");
+    joinGroupInput.value = "";
+}
+
+function clearCreateGroupForm(){
+
+}
+
 
 for(var i=0; i < 15; i++){
     createGroupItem(`Test Group #${i}`,100,50,"https://iso.500px.com/wp-content/uploads/2016/03/stock-photo-142984111.jpg");
