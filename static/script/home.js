@@ -116,13 +116,15 @@ function scrollFriendList(scrollDirection){
     friendList.scrollLeft -= (scrollDirection);
 }
 
-// function disableGroupPointer(){
-//     var groupList = document.getElementsByClassName('userGroups')[0];
-//     groupList.style.pointerEvents = "none";
-//     setTimeout(() => {
-//         groupList.style.pointerEvents = "auto";
-//     }, 500);
-// }
+function dimPage(){
+    let pageDimmer = document.getElementsByClassName("pageDimmer")[0];
+
+    if(pageDimmer.style.display = "none"){
+        pageDimmer.style.display = "block";
+    }else{
+        pageDimmer.style.display = "none";
+    }
+}
 
 for(var i=0; i < 15; i++){
     createGroupItem(`Test Group #${i}`,100,50,"https://iso.500px.com/wp-content/uploads/2016/03/stock-photo-142984111.jpg");
