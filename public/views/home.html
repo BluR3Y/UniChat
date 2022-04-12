@@ -7,6 +7,11 @@
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <link rel="stylesheet" href="./style/home.css">
         <script src="https://kit.fontawesome.com/79dc948593.js" crossorigin="anonymous"></script>
+        <script>
+            if(localStorage.getItem('user_id') === null){
+                window.location.href = "/";
+            }
+        </script>
     </head>
     <body>
         <div class="pageHeader">
@@ -16,14 +21,30 @@
         <div class="pageContent">
             <div class="sideNav showSideNav">
                 <div class="userProfile">
-                    <div class="userImgCont">
-                        <img src="https://media.istockphoto.com/photos/silhouette-of-man-in-dark-place-anonymous-backlit-contour-a-picture-id1139459625?b=1&k=20&m=1139459625&s=170667a&w=0&h=zVpBlAmdwUDWIVf0Zxtb3idMCitol4nzII2qde8Ybag=">
-                        <h1 id="hiddenUserName">reyf</h1>
-                    </div>
-                    <div class="userInfo">
-                        <h1>reyf</h1>
-                        <h2>#<span>1234</span></h2>
-                    </div>
+                    <div class="userImgCont"></div>
+                    <div class="userInfo"></div>
+                    <script>
+                        let pfpObj = document.createElement("img");
+                        pfpObj.setAttribute("src", "./content/uploads/userProfiles/" + localStorage.getItem("user_img"));
+                        document.getElementsByClassName("userImgCont")[0].appendChild(pfpObj);
+                        let hiddenName = document.createElement("h1");
+                        hiddenName.setAttribute("id", "hiddenUserName");
+                        hiddenName.innerHTML = localStorage.getItem("user_name");
+                        document.getElementsByClassName("userImgCont")[0].appendChild(hiddenName);
+
+                        let userNameObj = document.createElement("h1");
+                        userNameObj.innerHTML = localStorage.getItem("user_name");
+                        let userTagObj = document.createElement("h2");
+                        userTagObj.innerHTML = '#' + (()=>{
+                            var userTag = localStorage.getItem("user_tag");
+                            while(userTag.length < 4){
+                                userTag = '0' + userTag;
+                            }
+                            return userTag;
+                        })();
+                        document.getElementsByClassName("userInfo")[0].appendChild(userNameObj);
+                        document.getElementsByClassName("userInfo")[0].appendChild(userTagObj);
+                    </script>
                     <div class="userEditInfo">
                         <i class="fa-solid fa-screwdriver-wrench" onclick="window.location='/settings'"></i>
                     </div>
@@ -77,26 +98,35 @@
                                 <h1>Friends</h1>
                             </div>
                             <div class="friendFilters">
-                                <div class="friendFilterItem selectedFriendFilter">All</div>
-                                <div class="friendFilterItem">Online</div>
-                                <div class="friendFilterItem">Pending</div>
-                                <div class="friendFilterItem addFriendBtn" onclick="displayAddFriendForm()">Add</div>
+                                <div class="friendFilterItem selectedFriendFilter" onclick="updateFriendFilter(this)">All</div>
+                                <div class="friendFilterItem" onclick="updateFriendFilter(this)">Online</div>
+                                <div class="friendFilterItem" onclick="updateFriendFilter(this)">Pending</div>
+                                <div class="addFriendBtn" onclick="displayAddFriendForm()">Add</div>
                             </div>
                             <div class="userFriendsCont" onmousewheel="scrollFriendList(event.deltaY)">
-                                <div class="userFriendItem">
+                                <!-- <div class="userFriendItem">
                                     <div class="friendImgCont">
                                         <img src="https://media.istockphoto.com/photos/silhouette-of-man-in-dark-place-anonymous-backlit-contour-a-picture-id1139459625?b=1&k=20&m=1139459625&s=170667a&w=0&h=zVpBlAmdwUDWIVf0Zxtb3idMCitol4nzII2qde8Ybag=">
                                     </div>
                                     <div class="friendNameCont">
                                         <h1>Rey F</h1>
                                     </div>
-                                </div>
+                                </div> -->
+
+                                <!-- <div class="pendingFriendItem">
+                                    <img src="https://i.pinimg.com/736x/fc/5c/0a/fc5c0a37b4df71025782ebd10b621133.jpg">
+                                    <div class="pendingFriendCont">
+                                        <div class="pendingFriendInfo">
+                                            <h1>Chubacca</h1>
+                                            <h2>#1212</h2>
+                                        </div>
+                                        <div class="pendingFriendOptions">
+                                            <button class="acceptFriendBtn"><i class="fa-solid fa-check"></i></button>
+                                            <button class="rejectFriendBtn"><i class="fa-solid fa-xmark"></i></button>
+                                        </div>
+                                    </div>
+                                </div> -->
                             </div>
-
-
-
-
-                            
                         </div>
                     </div>
                     <div class="groupChatHeader">
@@ -117,11 +147,11 @@
             <i class="fa-solid fa-xmark" onclick="displayAddFriendForm()"></i>
             <div class="formCont">
                 <h1>Username:</h1>
-                <input type="text" class="add_username" required>
+                <input type="text" class="add_username" name="inviteeName" oninput="removeFriendErrorMsg()" required>
                 <h2>#</h2>
-                <input type="text" class="add_usernameID" required>
+                <input type="text" class="add_usernameID" onkeypress="validTag(event,this)" oninput="removeFriendErrorMsg()" name="inviteeTag" required>
             </div>
-            <div class="errorCont">Test Message</div>
+            <h1 class="errorMsg"></h1>
             <button type="submit">Sent Invitation</button>
         </form>
         <div class="addGroupForm">
@@ -170,7 +200,9 @@
                 <button disabled>Join</button>
             </form>
         </div>
-        
+        <div class="promptCont">
+            <h1></h1>
+        </div>
         <script src="./script/home.js" async defer></script>
     </body>
 </html>

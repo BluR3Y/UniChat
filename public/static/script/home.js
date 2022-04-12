@@ -111,9 +111,152 @@ function createFriendItem(friendName,friendImg){
     friendList.appendChild(friendItem);
 }
 
+function answerFriendRequest(el, userResponse){
+    var parent = el.parentNode;
+    var invitation_id = parent.querySelector('input').value;
+
+    var userFormData = {
+        'user_id' : localStorage.getItem("user_id"),
+        'invitation_id' : invitation_id,
+        'user_response' : userResponse
+    }
+    var url = '/answerFriendRequest'
+    fetch(url, {
+        method : 'POST',
+        headers : {
+            'Content-Type' : 'application/json',
+        },
+        body : JSON.stringify({'userForm': userFormData})
+    })
+    .then((response) => response.json())
+    .then((data) => {
+        if(data['status'] === "failed"){
+
+        }else{
+            var statusMsg = (function() {
+                var senderInfo = parent.parentNode.getElementsByClassName("pendingFriendInfo")[0];
+                var senderName = senderInfo.querySelector('h1').innerHTML;
+                if(parseInt(userResponse)){
+                    return `You are now friends with ${senderName}`;
+                }else{
+                    return `You've rejected a friend request from ${senderName}`;
+                }
+            })();
+            displayPrompt(statusMsg);
+            parent.parentNode.parentNode.parentNode.remove();
+        }
+    })
+}
+
+function createPendingFriendItem(pendingFriendName, pendingFriendTag, pendingFriendImg, invitationID){
+    let friendList = document.getElementsByClassName("userFriendsCont")[0];
+
+    let pendingFriendItem = document.createElement("div");
+    pendingFriendItem.setAttribute("class","pendingFriendItem");
+
+    let pendingFriendPfp = document.createElement("img");
+    pendingFriendPfp.setAttribute("src",`./content/uploads/userProfiles/${pendingFriendImg}`);
+    pendingFriendItem.appendChild(pendingFriendPfp);
+
+    let pendingFriendCont = document.createElement("div");
+    pendingFriendCont.setAttribute("class","pendingFriendCont");
+
+    let pendingFriendInfo = document.createElement("div");
+    pendingFriendInfo.setAttribute("class", "pendingFriendInfo");
+
+    let friendNameObj = document.createElement("h1");
+    friendNameObj.innerHTML = pendingFriendName;
+    let friendTagObj = document.createElement("h2");
+    while(pendingFriendTag.length < 4){
+        pendingFriendTag = '0' + pendingFriendTag;
+    }
+    friendTagObj.innerHTML = `#${pendingFriendTag}`;
+    pendingFriendInfo.appendChild(friendNameObj);
+    pendingFriendInfo.appendChild(friendTagObj);
+    pendingFriendCont.appendChild(pendingFriendInfo);
+
+    let pendingOptions = document.createElement("div");
+    pendingOptions.setAttribute("class", "pendingFriendOptions");
+
+    let acceptBtn = document.createElement("button");
+    acceptBtn.setAttribute("class", "acceptFriendBtn");
+    acceptBtn.setAttribute("onclick", "answerFriendRequest(this,1)");
+    let acceptBtnIcon = document.createElement("i");
+    acceptBtnIcon.setAttribute("class", "fa-solid fa-check");
+    acceptBtn.appendChild(acceptBtnIcon);
+    pendingOptions.appendChild(acceptBtn);
+
+    let rejectBtn = document.createElement("button");
+    rejectBtn.setAttribute("class", "rejectFriendBtn");
+    rejectBtn.setAttribute("onclick","answerFriendRequest(this,0)");
+    let rejectBtnIcon = document.createElement("i");
+    rejectBtnIcon.setAttribute("class", "fa-solid fa-xmark");
+    rejectBtn.appendChild(rejectBtnIcon);
+    pendingOptions.appendChild(rejectBtn);
+    pendingFriendCont.appendChild(pendingOptions);
+
+    let idObj = document.createElement("input");
+    idObj.setAttribute("type","hidden");
+    idObj.value = invitationID;
+    pendingOptions.appendChild(idObj);
+
+    pendingFriendItem.appendChild(pendingFriendCont);
+    friendList.appendChild(pendingFriendItem);
+}
+
 function scrollFriendList(scrollDirection){
     let friendList = document.getElementsByClassName("userFriendsCont")[0];
     friendList.scrollLeft -= (scrollDirection);
+}
+
+function updateFriendFilter(el){
+    var friendFilterCont = document.getElementsByClassName("friendFilters")[0];
+    var allFilters = friendFilterCont.getElementsByClassName("friendFilterItem");
+    var currentFilter = (()=>{
+        for(var i=0; i < allFilters.length; i++){
+            if(allFilters[i].classList.contains("selectedFriendFilter")){
+                return allFilters[i];
+            }
+        }
+        return -1;
+    })();
+    if(currentFilter !== el){
+        currentFilter.classList.remove("selectedFriendFilter");
+        el.classList.add("selectedFriendFilter");
+        
+        if(currentFilter === 0){
+
+        }else if(currentFilter === 1){
+
+        }else{
+            getFriendInvitations();
+        }
+    }
+}
+
+function getFriendInvitations(){
+    var userFormData = {
+        'user_id' : localStorage.getItem("user_id")
+    }
+    var url = '/getUserInvitations'
+    fetch(url, {
+        method : 'POST',
+        headers : {
+            'Content-Type' : 'application/json',
+        },
+        body : JSON.stringify({'userForm': userFormData})
+    })
+    .then((response) => response.json())
+    .then((data) => {
+        var friendRequests = data['requests'];
+        if(friendRequests.length){
+            friendRequests.forEach(request => {
+                createPendingFriendItem(request[0],request[1], request[2],request[3]);
+            })
+        }else{
+
+        }
+    })
 }
 
 function dimPage(){
@@ -131,10 +274,97 @@ function displayAddFriendForm(){
 
     if(friendForm.style.display === "flex"){
         friendForm.style.display = "none";
+        clearAddFriendForm();
     }else{
         friendForm.style.display = "flex";
     }
     dimPage();
+}
+
+function clearAddFriendForm(){
+    var friendForm = document.getElementsByClassName("addFriendForm")[0];
+    var friend_name_input = document.getElementsByName("inviteeName")[0];
+    var friend_tag_input = document.getElementsByName("inviteeTag")[0];
+
+    friend_name_input.value = "";
+    friend_tag_input.value = "";
+
+    removeFriendErrorMsg();
+}
+function removeFriendErrorMsg(){
+    var friendForm = document.getElementsByClassName("addFriendForm")[0];
+
+    if(friendForm.classList.contains("displayFriendError")){
+        var errorMsg = friendForm.getElementsByClassName("errorMsg")[0];
+        friendForm.classList.remove("displayFriendError");
+        errorMsg.innerHTML = "";
+    }
+}
+
+document.getElementsByClassName("addFriendForm")[0].addEventListener("submit", function(event){
+    event.preventDefault();
+    var friendForm = document.getElementsByClassName("addFriendForm")[0];
+    var inviteeName = document.getElementsByName("inviteeName")[0];
+    var inviteeTag = document.getElementsByName("inviteeTag")[0];
+    
+    if(validUsernameCharacters(inviteeName.value)){
+        if(inviteeName.value !== localStorage.getItem("user_name") || parseInt(inviteeTag.value) !== parseInt(localStorage.getItem("user_tag"))){
+            var userFormData = {
+                'user_id' : localStorage.getItem("user_id"),
+                'invitee_name' : inviteeName.value,
+                'invitee_tag' : inviteeTag.value
+            }
+        
+            var url = '/sendFriendInvitation'
+            fetch(url, {
+                method : 'POST',
+                headers : {
+                    'Content-Type' : 'application/json',
+                },
+                body : JSON.stringify({'userForm': userFormData})
+            })
+            .then((response) => response.json())
+            .then((data) => {
+                if(data['status'] === "failed"){
+                    var errorMsg = friendForm.getElementsByClassName("errorMsg")[0];
+                    errorMsg.innerHTML = (()=>{
+                        if(data['reason'] === "dbConnection"){
+                            return "Trouble Connecting to Database";
+                        }else if(data['reason'] === "userDNE"){
+                            return "User with those credentials doesn't exist";
+                        }else if(data['reason'] === "invitationExists"){
+                            return "An invitation to this user has already been sent";
+                        }else{
+                            return "An error has occured, please try again later";
+                        }
+                    })();
+                    friendForm.classList.add("displayFriendError");
+                }else{
+                    displayPrompt(`Invitation sent to ${inviteeName.value}`);
+                    displayAddFriendForm();
+                }
+            })
+        }else{
+            var errorMsg = friendForm.getElementsByClassName("errorMsg")[0];
+            errorMsg.innerHTML = "You can't be friends with yourself";
+            friendForm.classList.add("displayFriendError");
+        }
+    }else{
+        var errorMsg = friendForm.getElementsByClassName("errorMsg")[0];
+        errorMsg.innerHTML = "Username contains invalid characters";
+        friendForm.classList.add("displayFriendError");
+    }
+})
+
+function displayPrompt(msg){
+    var promptObj = document.getElementsByClassName("promptCont")[0];
+    var msgObj = promptObj.querySelector("h1");
+    msgObj.innerHTML = msg;
+    promptObj.style.display = "block";
+    promptObj.style.animation = "4s promptAni linear";
+    setTimeout(() => {
+        promptObj.style.display = "none";
+    }, 3900);
 }
 
 function displayAddGroupForm(){
@@ -295,11 +525,29 @@ function clearCreateGroupForm(){
 
 }
 
-
-for(var i=0; i < 15; i++){
-    createGroupItem(`Test Group #${i}`,100,50,"https://iso.500px.com/wp-content/uploads/2016/03/stock-photo-142984111.jpg");
+function validTag(event,el){
+    const validCharacters = [0,1,2,3,4,5,6,7,8,9];
+    event.preventDefault();
+    if(validCharacters.includes(parseInt(event.key))){
+       if(el.value.length < 4){
+        el.value += event.key;
+       }
+    }
+}
+function validUsernameCharacters(username){
+    var isvalid = true;
+    for(var i=0; i < username.length;i++){
+      if(!(/[0-9a-zA-Z]/).test(username[i])){
+         isvalid = false;
+      }
+    }
+    return isvalid;
 }
 
-for(var i=0; i < 25; i++){
-    createFriendItem(`Name #${i}`,"https://media.istockphoto.com/photos/silhouette-of-man-in-dark-place-anonymous-backlit-contour-a-picture-id1139459625?b=1&k=20&m=1139459625&s=170667a&w=0&h=zVpBlAmdwUDWIVf0Zxtb3idMCitol4nzII2qde8Ybag=");
-}
+// for(var i=0; i < 15; i++){
+//     createGroupItem(`Test Group #${i}`,100,50,"https://iso.500px.com/wp-content/uploads/2016/03/stock-photo-142984111.jpg");
+// }
+
+// for(var i=0; i < 25; i++){
+//     createFriendItem(`Name #${i}`,"https://media.istockphoto.com/photos/silhouette-of-man-in-dark-place-anonymous-backlit-contour-a-picture-id1139459625?b=1&k=20&m=1139459625&s=170667a&w=0&h=zVpBlAmdwUDWIVf0Zxtb3idMCitol4nzII2qde8Ybag=");
+// }

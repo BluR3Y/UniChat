@@ -6,6 +6,7 @@
         <title>UniChat | Settings</title>
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <link rel="stylesheet" href="./style/settings.css">
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
         <script>
             if(localStorage.getItem('user_id') === null){
                 window.location.href = "/";
@@ -17,14 +18,14 @@
         <div class='topNav'>
             <div class='Logo'><h1>UniChat</h1></div>
             <div class='navOptions'>
-                <button onclick="gotoHomePage()" class="optionBtn">Home</button>
+                <button onclick="window.location='/feed'" class="optionBtn">Home</button>
                 <button onclick="logout()" class='optionBtn Right'>Log Out</button>
             </div>
         </div>
     
         <div class="updateAccount">
             <div onclick="uploadImgForm()" class="imgContainer">
-                <img class="profileImg"><script>document.getElementsByClassName('profileImg')[0].setAttribute('src','../uploads/userProfiles/'+localStorage.getItem('user_img'));</script>
+                <img class="profileImg"><script>document.getElementsByClassName('profileImg')[0].setAttribute('src','./content/uploads/userProfiles/'+localStorage.getItem('user_img'));</script>
                 <div class="middle"></div>
                 <h1 class="uploadText">Upload Image</h1>
             </div>
@@ -76,7 +77,7 @@
             <h1>Select Image to upload:</h1>
             <input type="file" accept="image/*" onchange="validateSelectedImg(this)"  id="selectedImg" name="fileToUpload" required/>
             <div for='selectedImg' class="drop_zone" accept='image/*'  ondragover="dragOverHandler(event)">
-                <img id="bgPreview" draggable="false" src="../uploads/defaults/upload.png">
+                <img id="bgPreview" draggable="false" src="./content/uploads/defaults/upload.png">
                 <img id="previewSelected" draggable="false">
                 <h1 id="inputText"><label id="manualSelection" for='selectedImg'>Choose a file</label> or drag it here.</h1>
             </div>
@@ -129,7 +130,7 @@
         
         <form class="updateForm" id="tagForm">
             <h1 class="updateText">Enter new tag:</h1>
-            <input type="text" name="newTag" onkeypress="validTag(event)" placeholder="1234" class='updateInput'required>
+            <input type="text" name="newTag" onkeypress="validTag(event,this)" placeholder="1234" class='updateInput'required>
             <h1 class="formError"></h1>
     
             <h1 class="verifyText">Current Password:</h1>

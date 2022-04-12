@@ -448,6 +448,7 @@
     display: flex;
     flex-direction: row;
     align-items: center;
+    user-select: none;
 
     border-left: 2.5px solid black;
     border-right: 2.5px solid black;
@@ -472,6 +473,15 @@
 }
 
 .addFriendBtn{
+    width: fit-content;
+    height: fit-content;
+    border-radius: 5px;
+    font-size: 20px;
+    margin: 0 6px;  
+    padding: 0 5px;
+    cursor: pointer;
+    font-family: 'Poppins', sans-serif;
+    font-weight: lighter;
     background-color: rgb(64, 219, 64);
 }
 .addFriendBtn:hover{
@@ -528,6 +538,80 @@
     text-overflow: ellipsis;
     white-space: nowrap;
     margin: 0;
+}
+
+.pendingFriendItem{
+    height: 65px;
+    width: 200px;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    background-color: rgb(35, 36, 40);
+    border-radius: 35px 10px 10px 35px;
+    padding: 0;
+    margin: 0 6px;
+    overflow: hidden;
+    flex-shrink: 0;
+}
+.pendingFriendItem img{
+    width: 65px;
+    height: 65px;
+    border-radius: 50%;
+    object-fit: contain;
+}
+.pendingFriendCont{
+    height: 100%;
+    width: 132px;
+    display: flex;
+    flex-direction: column;
+}
+.pendingFriendInfo{
+    width: 100%;
+    height: 40px;
+}
+.pendingFriendInfo h1{
+    font-family: 'Poppins', sans-serif;
+    font-size: 16px;
+    line-height: 17px;
+    font-weight: lighter;
+    color: white;
+    margin: 6px 0 2px 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+.pendingFriendInfo h2{
+    font-family: 'Poppins',sans-serif;
+    font-size: 13px;
+    line-height: 13px;
+    font-weight: lighter;
+    color: wheat;
+    margin: 0;
+}
+.pendingFriendOptions{
+    width: 100%;
+    height: 25px;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-evenly;
+}
+.pendingFriendOptions button{
+    height: 19px;
+    width: 44%;
+    border: 1px solid white;
+    border-radius: 35px 35px 35px 35px;
+    cursor: pointer;
+    background-color: rgb(35, 36, 40);
+}
+.pendingFriendOptions button > i{
+    font-size: 17px;
+    color: white;
+}
+.pendingFriendOptions button:hover{
+    background-color: rgb(42, 228, 228);
+    border: 1px solid rgb(35, 36,40);
 }
 
 /* --------------- Group Chat Header ------------------- */
@@ -615,6 +699,7 @@
     display: flex;
     flex-direction: row;
     align-items: center;
+    border: 2px solid rgb(72, 110, 197);
 
     background-color: rgb(72, 110, 197);
 }
@@ -662,7 +747,7 @@
     background-color: #6df4fb;
     cursor: pointer;
 }
-.errorCont{
+.errorMsg{
     width: 90%;
     height: auto;
     font-family: 'Poppins', sans-serif;
@@ -670,6 +755,12 @@
     text-align: center;
     color: rgb(255, 48, 48);
     display: none;
+}
+.displayFriendError > .formCont{
+    border: 2px solid red;
+}
+.displayFriendError > .errorMsg{
+    display: block;
 }
 
 /*---------------------------------- Add Group Form--------------------------------------------*/
@@ -905,7 +996,38 @@
 }
 
 
-/*------------------------------------------------------------------------------*/
+/*---------------------------------- Prompt --------------------------------------------*/
+
+.promptCont{
+    width: 400px;
+    height: auto;
+    position: fixed;
+    padding: 5px;
+    left: 50%;
+    bottom: 10%;
+    transform: translate(-50%);
+    border-radius: 30px 30px 30px 30px;
+    background-color: #00B7EB;
+    display: none;
+}
+.promptCont h1{
+    width: 100%;
+    height: auto;
+    font-family: 'Poppins', sans-serif;
+    font-size: 20px;
+    text-align: center;
+}
+
+@keyframes promptAni{
+    0%{
+        opacity: 0;
+    }50%{
+        opacity: 1;
+    }100%{
+        opacity: 0;
+    }
+}
+
 /*------------------------------------------------------------------------------*/
 /*------------------------------------------------------------------------------*/
 /*------------------------------------------------------------------------------*/

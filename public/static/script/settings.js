@@ -24,6 +24,11 @@ var emailForm = document.getElementById('emailForm');
 var verifyForm = document.getElementById('ownershipForm');
 var tagForm = document.getElementById('tagForm');
 
+function logout(){
+    localStorage.clear();
+    window.location.href = "/";
+}
+
 function submitImgUpload(){
     var profileImg = profileImgForm.elements['fileToUpload'].files[0];
     var formData = new FormData();
@@ -40,9 +45,9 @@ function submitImgUpload(){
                 var response = JSON.parse(xhr.responseText);
                 if(response.status === "success"){
                     localStorage.setItem('user_img', response.userImg);
-                    window.location.href = "userSettings.html?uploadStatus=success";
+                    window.location.href = "/settings?uploadStatus=success";
                 }else{
-                    window.location.href = "userSettings.html?uploadStatus=failed&reason="+response.reason;
+                    window.location.href = "/settings?uploadStatus=failed&reason="+response.reason;
                 }
             }else{
                 console.log(xhr.statusText);
@@ -73,7 +78,7 @@ usernameForm.addEventListener('submit', function(e){
                         var response = JSON.parse(xhr.responseText);
                         if(response.status === "success"){
                             localStorage.setItem('user_name', newUsername);
-                            window.location.href = "userSettings.html?updateStatus=success";
+                            window.location.href = "/settings?updateStatus=success";
                         }else{
                             var updateError = response.reason;
                             if(updateError==="invalidPword"){
@@ -129,7 +134,7 @@ passwordForm.addEventListener('submit', function(e){
                 if(xhr.status === 200){
                     var response = JSON.parse(xhr.responseText);
                     if(response.status === "success"){
-                        window.location.href = "userSettings.html?updateStatus=success";
+                        window.location.href = "/settings?updateStatus=success";
                     }else{
                         var updateError = response.reason;
                         if(updateError === "invalidPword"){
@@ -172,7 +177,7 @@ emailForm.addEventListener('submit', function(e){
                     var response = JSON.parse(xhr.responseText);
                     if(response.status === "success"){
                         localStorage.setItem('user_email',newEmail);
-                        window.location.href = "userSettings.html?updateStatus=success";
+                        window.location.href = "/settings?updateStatus=success";
                     }else{
                         var updateError = response.reason;
                         if(updateError === "invalidPword"){
@@ -219,7 +224,7 @@ tagForm.addEventListener('submit', function(e){
                     var response = JSON.parse(xhr.responseText);
                     if(response.status === "success"){
                         localStorage.setItem('user_tag', newTag);
-                        window.location.href = "userSettings.html?updateStatus=success";
+                        window.location.href = "/settings?updateStatus=success";
                     }else{
                         var updateError = response.reason;
                         if(updateError === "invalidPword"){
@@ -262,12 +267,12 @@ function validEmail(email){
     return re.test(String(email).toLowerCase());
 }
 
-function validTag(element){
+function validTag(event,el){
     const validCharacters = [0,1,2,3,4,5,6,7,8,9];
-    element.preventDefault();
-    if(validCharacters.includes(parseInt(element.key))){
-       if(tagForm.elements['newTag'].value.length < 4){
-        tagForm.elements['newTag'].value += element.key;
+    event.preventDefault();
+    if(validCharacters.includes(parseInt(event.key))){
+       if(el.value.length < 4){
+        el.value += event.key;
        }
     }
 }

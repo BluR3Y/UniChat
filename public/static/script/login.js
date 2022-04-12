@@ -94,6 +94,9 @@ document.getElementsByClassName('loginForm')[0].addEventListener('submit', (el) 
             userStorage = window.localStorage;
             localStorage.setItem('user_id',data['user_id']);
             localStorage.setItem('user_name',data['user_name']);
+            localStorage.setItem('user_tag', data['user_tag']);
+            localStorage.setItem('user_email', data['user_email']);
+            localStorage.setItem('user_img', data['user_img']);
             window.location.href = "/Feed";
         }
     })

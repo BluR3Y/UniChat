@@ -18,6 +18,8 @@ const readFile = promisify(fs.readFile);  //used to readfiles
 const Handlebars = require('handlebars'); //used to change values of a read file - npm install handlebars
 const { sync } = require('glob');
 const { connect } = require("http2");
+const { resolve } = require('path');
+const { all } = require('express/lib/application');
 const template = Handlebars.compile('link: {{link}}');
 const PORT = process.env.PORT || 3000;
 
@@ -34,14 +36,6 @@ auth: {
   pass: 'BassDropp@1423'
 }
 });
-
-// // Create and Deploy Your First Cloud Functions
-// // https://firebase.google.com/docs/functions/write-firebase-functions
-//
-// exports.helloWorld = functions.https.onRequest((request, response) => {
-//   functions.logger.info("Hello logs!", {structuredData: true});
-//   response.send("Hello from Firebase!");
-// });
 
 app.engine('html', require('ejs').renderFile);  //Important for page Renders
 app.set('view engine', 'pug');    //For rendering templates - npm install pug
@@ -69,6 +63,9 @@ app.get('/feed', function(req, res) {
 });
 app.get('/settings', function(req, res) {
   res.render('settings.html');
+});
+app.get('/tester', function(req, res){
+  res.render('tester.html');
 });
 
 // app.get('/userCreated', function(req, res) {   -- How to render a pug template
@@ -113,7 +110,8 @@ function verifyEmailFile(user_id,user_email, callback){
 
 var profileStorage = multer.diskStorage({
   destination: function(req, file, callback){
-    callback(null, 'src/uploads/userProfiles');
+    callback(null, 'static/content/uploads/userProfiles');
+    // callback(null, 'src/uploads/userProfiles');
   },
   filename: function(req, file, callback){
     var fileName = "user-"+req.body.user_id;
@@ -134,8 +132,8 @@ var profileFilter = function(req, file, callback){
   var user_id = req.body.user_id;
   var validSize = 500000;
   if(fileSize <= validSize){
-    if(getUserImg(user_id) !== "defaults/defaultProfileImg.jpg"){
-      var imgPath = __dirname + '/src/uploads/userProfiles/' +getUserImg(user_id);
+    if(getUserImg(user_id) !== "defaultProfileImg.jpg"){
+      var imgPath = __dirname + '/static/content/uploads/userProfiles/' +getUserImg(user_id);
       fs.unlink(imgPath, function(err){
         if(err) throw err;
         callback(null, true);
@@ -276,20 +274,22 @@ app.post('/createUserGroup', function(req,res){
 // SELECT LAST_INSERT_ID(); -- This will get you back the PRIMARY KEY value of the last row that you inserted:
   
 function getUserImg(user_id){
-  var file = glob.sync(__dirname+`/src/uploads/userProfiles/user-${user_id}.*`);
+  var file = glob.sync(__dirname+`/static/content/uploads/userProfiles/user-${user_id}.*`);
+  // console.log(__dirname + `/static/content/uploads/userProfiles/user-${user_id}.*`);
   if(file.length > 0){
-    return `userProfiles/${path.basename(file[0])}`;
+    return path.basename(file[0]);
+    // return `userProfiles/${path.basename(file[0])}`;
   }else{
-    return 'defaults/defaultProfileImg.jpg';
+    return 'defaultProfileImg.jpg';
   }
 }
 
 function getGroupImg(group_id){
-  var file = glob.sync(__dirname+`/src/uploads/groupProfiles/group-${group_id}.*`);
+  var file = glob.sync(__dirname+`/static/content/uploadsgroupProfiles/group-${group_id}.*`);
   if(file.length > 0){
     return `groupProfiles/${path.basename(file[0])}`;
   }else{
-    return 'defaults/defaultGroupImg.png';
+    return 'defaultGroupImg.png';
   }
 }
 
@@ -500,6 +500,19 @@ function getAllUserFriends(user_id){
         friendIDs.push(Object.values(friend));
       })
       resolve(friendIDs);
+    })
+  });
+}
+
+function getAllUserFriendRequests(user_id){
+  return new Promise(resolve => {
+    connection.query(`SELECT invitation_id, invitation_sender FROM friend_invitations WHERE invitation_reciever = ${user_id};`, (err, invitations) => {
+      if(err) throw err;
+      var friendInvitations = [];
+      invitations.forEach(invitation => {
+        friendInvitations.push(Object.values(invitation));
+      })
+      resolve(friendInvitations);
     })
   });
 }
@@ -720,6 +733,106 @@ app.post('/getUserFriends', postData.none(), function(req,res){
 
   }
 
+});
+
+app.post('/getUserInvitations', function(req,res){
+  var userData = req.body.userForm;
+  var user_id = userData['user_id'];
+
+  getAllUserFriendRequests(user_id).then(allRequests => {
+    if(allRequests.length){
+      (async function() {
+        var processedData = [];
+        for(var i=0; i < allRequests.length; i++){
+          var requester = allRequests[i][1];
+          var requesterData = await getFriendInfo(requester);
+          requesterData.push(allRequests[i][0]);
+          processedData.push(requesterData);
+        }
+        return processedData;
+      })().then(processedData => {
+        res.json({requests:processedData});
+      })    
+    }else{
+      res.json({requests:[]});
+    }
+  })
+})
+
+
+app.post('/sendFriendInvitation', function(req,res){
+  var userData = req.body.userForm;
+  var user_id = userData['user_id'];
+  var invitee_name = userData['invitee_name'];
+  var invitee_tag = userData['invitee_tag'];
+
+  connection.connect(()=>{
+    if(connection.state !== "disconnected"){
+      try{
+        connection.query(`SELECT user_id FROM users WHERE user_name = '${invitee_name}' AND user_tag = '${invitee_tag}';`, (err, result)=>{
+          if(err) {throw err;}
+          else if(result.length){
+            var invitee_id = Object.values(result[0]);
+            connection.query(`SELECT invitation_id FROM friend_invitations WHERE invitation_sender = ${user_id} AND invitation_reciever = ${invitee_id};`, (err,result)=>{
+              if(err){throw err;}
+              else if(!result.length){
+                connection.query(`INSERT INTO friend_invitations (invitation_sender, invitation_reciever) VALUES(${user_id},${invitee_id});`, (err, result)=>{
+                  if(err){throw err;}
+                  else{
+                    connection.query("SELECT LAST_INSERT_ID()", (err, result)=>{
+                      if(err){throw err;}
+                      res.json({status:'success',invitation_id:Object.values(result[0])});
+                    })
+                  }
+                })
+              }else{
+                res.json({status:'failed',reason:'invitationExists'});
+              }
+            })
+          }else{
+            res.json({status:'failed', reason:'userDNE'});
+          }
+        })
+      }catch(err){
+        console.error(err);
+        res.json({status:'failed',reason:'error'});
+      }
+    }else{
+      res.json({status:'failed', reason:"dbConnection"});
+    }
+  })
+});
+
+app.post('/answerFriendRequest', function(req,res) {
+  var userData = req.body.userForm;
+  var user_id = userData['user_id'];
+  var invitation_id = userData['invitation_id'];
+  var user_response = userData['user_response'];
+
+  connection.connect(()=>{
+    if(connection.state != "disconnected"){
+      try{
+        if(user_response){
+          connection.query(`SELECT invitation_sender FROM friend_invitations WHERE invitation_id = ${invitation_id};`, (err, result) => {
+            if(err) throw err;
+            var sender_id = Object.values(result[0]);
+            connection.query(`INSERT INTO friends (user_id, friend_id) VALUES (${sender_id},${user_id});`, (err) => {
+              if(err) throw err;
+            })
+          })
+        }
+        connection.query(`DELETE FROM friend_invitations WHERE invitation_id = ${invitation_id};`, (err) => {
+          if(err) throw err;
+          res.json({status:"success"});
+        })
+      }catch(err){
+        console.error(err);
+        res.json({staus:"failed", reason:"error"});
+      }
+    }else{
+      res.json({status:"failed",reason:"dbConnection"});
+    }
+  })
 });
 
 app.post('/uploadProfileImg', function(req,res){

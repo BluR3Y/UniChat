@@ -32,7 +32,18 @@ CREATE TABLE `group_members` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 CREATE TABLE `friends` (
+    `connection_id` int(11) AUTO_INCREMENT,
 	`user_id` int(11) NOT NULL,
     `friend_id` int(11) NOT NULL,
-    `date_friended` timestamp NOT NULL DEFAULT current_timestamp()
+    `date_friended` timestamp NOT NULL DEFAULT current_timestamp(),
+    PRIMARY KEY(`connection_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+CREATE TABLE `friend_invitations` (
+    `invitation_id` int(11) NOT NULL AUTO_INCREMENT,
+    `invitation_sender` int(11) NOT NULL,
+    `invitation_reciever` int(11) NOT NULL
+    PRIMARY KEY(`invitation_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+
