@@ -22,7 +22,7 @@ CREATE TABLE `groups` (
     `date_created` datetime NOT NULL DEFAULT current_timestamp(),
     PRIMARY KEY(`group_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
-
+-- group role : 0:admin 1:member
 CREATE TABLE `group_members` (
 	`member_id` int(11) NOT NULL,
 	`group_id` int(11) NOT NULL,

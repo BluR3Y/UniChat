@@ -274,6 +274,41 @@ function getUserFriends(){
     })
 }
 
+function getUserGroups(){
+    var groupFilters = document.getElementsByClassName("groupFilterItem");
+    var groupList = document.getElementsByClassName("userGroups")[0];
+    var selectedGroupFilter = (function() {
+        if(groupFilters[0].classList.contains('selectedGroupFilter')){
+            return "all";
+        }else if(groupFilters[1].classList.contains('selectedGroupFilter')){
+            return "favorite";
+        }else if(groupFilters[2].classList.contains('selectedGroupFilter')){
+            return "Created";
+        }
+    })();
+
+    while(groupList.childElementCount){
+        groupList.removeChild(groupList.firstChild);
+    }
+
+    var userData = {
+        'user_id' : localStorage.getItem('user_id'),
+        'filter_type' : selectedGroupFilter,
+    }
+    var url = '/getUserGroups';
+    fetch(url, {
+        method : 'POST',
+        headers : {
+            'Content-Type' : 'application/json',
+        },
+        body : JSON.stringify({'userForm' : userData})
+    })
+    .then((response) => response.json())
+    .then((data) => {
+        console.log(data);
+    })
+}
+
 function getFriendInvitations(){
     var userFormData = {
         'user_id' : localStorage.getItem("user_id")
@@ -297,6 +332,22 @@ function getFriendInvitations(){
 
         }
     })
+}
+
+function updateGroupFilter(el){
+    var allGroupFilters = document.getElementsByClassName("groupFilterItem");
+    var currentFilter = (function() {
+        for(const filter of allGroupFilters){
+            if(filter.classList.contains("selectedGroupFilter")){
+                return filter;
+            }
+        }
+        return -1;
+    })();
+    if(currentFilter !== el){
+        currentFilter.classList.remove("selectedGroupFilter");
+        el.classList.add("selectedGroupFilter");
+    }
 }
 
 function dimPage(){
@@ -588,6 +639,7 @@ function validUsernameCharacters(username){
 
 window.addEventListener("load", function(){
     getUserFriends();
+    getUserGroups();
 })
 
 // for(var i=0; i < 15; i++){

@@ -254,7 +254,7 @@ app.post('/createUserGroup', function(req,res){
   var user_id = userData['user_id'];
   var group_name = userData['group_name'];
 
-  connection.query(`INSERT INTO user_groups (group_creator, group_name) VALUES(${user_id}, '${group_name}');`, function(err){
+  connection.query(`INSERT INTO groups (group_creator, group_name) VALUES(${user_id}, '${group_name}');`, function(err){
     if(err){
       res.json({status: "failed", reason: err});
     }else{
@@ -402,7 +402,7 @@ function getGroupInfo(group_id){
   return new Promise((resolve,reject)=>{
     setTimeout(() => {
       (async function(){
-        var Info = await new Promise((resolve,reject) => connection.query(`SELECT * FROM user_groups WHERE group_id = ${group_id};`, (err, result) =>{
+        var Info = await new Promise((resolve,reject) => connection.query(`SELECT * FROM groups WHERE group_id = ${group_id};`, (err, result) =>{
           if(err) reject(err);
           resolve(Object.values(result[0]));
         }));
@@ -420,8 +420,9 @@ function getGroupInfo(group_id){
 }
 
 function getUserCreatedGroups(user_id){
+  // SELECT group_id FROM groups WHERE group_creator = ${user_id};
   return new Promise(resolve=>{
-    connection.query(`SELECT group_id FROM user_groups WHERE group_creator = ${user_id};`, function(err,userGroups){
+    connection.query(`SELECT group_id FROM group_members WHERE member_id = ${user_id} AND member_role = 0;`, function(err,userGroups){
       if(err) throw err;
       var groupIDs = [];
       for(var i=0; i < userGroups.length; i++){
@@ -434,7 +435,7 @@ function getUserCreatedGroups(user_id){
 
 function getUserFavoriteGroups(user_id){
   return new Promise(resolve=>{
-    connection.query(`SELECT group_id FROM group_members WHERE user_id = ${user_id} AND favorite_group = 1;`, function(err,userGroups){
+    connection.query(`SELECT group_id FROM group_members WHERE member_id = ${user_id} AND favorite_group = 1;`, function(err,userGroups){
       if(err) throw err;
       var groupIDs = [];
       for(var i=0; i < userGroups.length; i++){
@@ -447,7 +448,7 @@ function getUserFavoriteGroups(user_id){
 
 function getUserMemberGroups(user_id){
   return new Promise(resolve=>{
-    connection.query(`SELECT group_id FROM group_members WHERE user_id=${user_id};`, function(err, userGroups){
+    connection.query(`SELECT group_id FROM group_members WHERE member_id=${user_id};`, function(err, userGroups){
       if(err) throw err;
       var groupIDs = [];
       for(var i=0; i < userGroups.length; i++){
@@ -491,19 +492,6 @@ function getAllUserGroups(user_id){
   })
 }
 
-// function getAllUserFriends(user_id){
-//   return new Promise(resolve => {
-//     connection.query(`SELECT acceptee_id, date_friended FROM user_friends WHERE user_id = ${user_id};`, function(err, userFriends){
-//       if(err) throw err;
-//       var friendIDs = [];
-//       userFriends.forEach(friend =>{
-//         friendIDs.push(Object.values(friend));
-//       })
-//       resolve(friendIDs);
-//     })
-//   });
-// }
-
 function getAllUserFriends(user_id){
   return new Promise(resolve => {
     connection.query(`SELECT invitee_id, date_connected FROM friends WHERE inviter_id = ${user_id};`, function(err, friendsInvited){
@@ -527,7 +515,6 @@ function getAllUserFriends(user_id){
 }
 
 function getAllUserFriendRequests(user_id){
-// SELECT invitation_id, invitation_sender FROM friend_invitations WHERE invitation_reciever = ${user_id};
   return new Promise(resolve => {
     connection.query(`SELECT invitation_id, inviter_id FROM friend_invitations WHERE invitee_id = ${user_id};`, (err, invitations) => {
       if(err) throw err;
@@ -669,62 +656,105 @@ app.get('/activate', function(req, res) {
 // });
 
 app.post('/getUserGroups',  function(req,res){
-  var user_id = req.body.user_id;
-  var filter = parseInt(req.body.filter);
+  var userData = req.body.userForm;
+  var user_id = userData['user_id'];
+  var filter_type = userData['filter_type'];
 
-  if(filter === 0){
-    getAllUserGroups(user_id).then(allGroups =>{
-      if(allGroups.length != 0){
-        (async function(){
-          var groupsInfo = [];
-          for(var i=0; i < allGroups.length; i++){
-            var groupInfo = await getGroupInfo(allGroups[i]);
-            groupsInfo.push(groupInfo);
-          }
-          return groupsInfo;
-        })().then(Info =>{
-          res.json({groups:Info});
-        })
-      }else{
-        res.json({groups:null});
-      }
-    })
-  }else if(filter === 1){
-    getUserFavoriteGroups(user_id).then(favoriteGroups =>{
-      if(favoriteGroups.length != 0){
-        (async function(){
-          var groupsInfo = [];
-          for(var i=0; i < favoriteGroups.length; i++){
-            var groupInfo = await getGroupInfo(favoriteGroups[i]);
-            groupsInfo.push(groupInfo);
-          }
-          return groupsInfo;
-        })().then(Info =>{
-          res.json({groups:Info});
-        })
-      }else{
-        res.json({groups:null});
-      }
-    })
-  }else if(filter === 2){
-    getUserCreatedGroups(user_id).then(createdGroups =>{
-      if(createdGroups.length != 0){
-        (async function(){
-          var groupsInfo = [];
-          for(var i=0; i < createdGroups.length; i++){
-            var groupInfo = await getGroupInfo(createdGroups[i]);
-            groupsInfo.push(groupInfo);
-          }
-          return groupsInfo;
-        })().then(Info =>{
-          res.json({groups:Info});
-        })
-      }else{
-        res.json({groups:Info});
-      }
+  if(filter_type === "all"){
+    getAllUserGroups(user_id).then(allGroups => {
+      (async function() {
+        for(var i = 0; i < allGroups.length; i++){
+          allGroups[i] = [allGroups[i][0]].concat(Object.values(await getGroupInfo(allGroups[i][0])));
+        }
+        console.log(allGroups);
+      })();
     })
   }
+
+  // if(filter === 0){
+  //   getAllUserGroups(user_id).then(allGroups =>{
+  //     if(allGroups.length != 0){
+  //       (async function(){
+  //         var groupsInfo = [];
+  //         for(var i=0; i < allGroups.length; i++){
+  //           var groupInfo = await getGroupInfo(allGroups[i]);
+  //           groupsInfo.push(groupInfo);
+  //         }
+  //         return groupsInfo;
+  //       })().then(Info =>{
+  //         res.json({groups:Info});
+  //       })
+  //     }else{
+  //       res.json({groups:null});
+  //     }
+  //   })
+  // }else if(filter === 1){
+  //   getUserFavoriteGroups(user_id).then(favoriteGroups =>{
+  //     if(favoriteGroups.length != 0){
+  //       (async function(){
+  //         var groupsInfo = [];
+  //         for(var i=0; i < favoriteGroups.length; i++){
+  //           var groupInfo = await getGroupInfo(favoriteGroups[i]);
+  //           groupsInfo.push(groupInfo);
+  //         }
+  //         return groupsInfo;
+  //       })().then(Info =>{
+  //         res.json({groups:Info});
+  //       })
+  //     }else{
+  //       res.json({groups:null});
+  //     }
+  //   })
+  // }else if(filter === 2){
+  //   getUserCreatedGroups(user_id).then(createdGroups =>{
+  //     if(createdGroups.length != 0){
+  //       (async function(){
+  //         var groupsInfo = [];
+  //         for(var i=0; i < createdGroups.length; i++){
+  //           var groupInfo = await getGroupInfo(createdGroups[i]);
+  //           groupsInfo.push(groupInfo);
+  //         }
+  //         return groupsInfo;
+  //       })().then(Info =>{
+  //         res.json({groups:Info});
+  //       })
+  //     }else{
+  //       res.json({groups:Info});
+  //     }
+  //   })
+  // }
 });
+
+app.post('/createGroup', function(req, res){
+  var userData = req.body.userForm;
+  var user_id = userData['user_id'];
+  var group_name = userData['group_name'];
+  var group_desc = userData['group_desc'];
+
+  connection.connect(()=> {
+    if(connection.state != "disconnected"){
+      connection.query(`INSERT INTO groups (group_name, group_description) VALUES ("${group_name}","${group_desc}");`, function(err) {
+        if(err) throw err;
+        else{
+          connection.query(`SELECT LAST_INSERT_ID();`, function(err,result) {
+            if(err) throw err;
+            else{
+              const group_id = Object.values(result);
+              connection.query(`INSERT INTO group_members (member_id, group_id, member_role) VALUES (${user_id}, ${group_id}, 1);`, function(err) {
+                if(err) throw err;
+                else{
+                  res.json({status: 'success'});
+                }
+              })
+            }
+          })
+        }
+      })
+    }else{
+      res.json({status: 'failed', reason: 'dbConnection'});
+    }
+  })
+})
 
 app.post('/getUserFriends', function(req, res){
   var userData = req.body.userForm;
@@ -808,9 +838,7 @@ app.post('/answerFriendRequest', function(req,res) {
   var user_id = userData['user_id'];
   var invitation_id = userData['invitation_id'];
   var user_response = userData['user_response'];
-// SELECT invitation_sender FROM friend_invitations WHERE invitation_id = ${invitation_id};
-// INSERT INTO friends (user_id, friend_id) VALUES (${sender_id},${user_id});
-// DELETE FROM friend_invitations WHERE invitation_id = ${invitation_id};
+  
   connection.connect(()=>{
     if(connection.state != "disconnected"){
       try{
