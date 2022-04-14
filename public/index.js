@@ -491,22 +491,45 @@ function getAllUserGroups(user_id){
   })
 }
 
+// function getAllUserFriends(user_id){
+//   return new Promise(resolve => {
+//     connection.query(`SELECT acceptee_id, date_friended FROM user_friends WHERE user_id = ${user_id};`, function(err, userFriends){
+//       if(err) throw err;
+//       var friendIDs = [];
+//       userFriends.forEach(friend =>{
+//         friendIDs.push(Object.values(friend));
+//       })
+//       resolve(friendIDs);
+//     })
+//   });
+// }
+
 function getAllUserFriends(user_id){
   return new Promise(resolve => {
-    connection.query(`SELECT acceptee_id, date_friended FROM user_friends WHERE user_id = ${user_id};`, function(err, userFriends){
+    connection.query(`SELECT invitee_id, date_connected FROM friends WHERE inviter_id = ${user_id};`, function(err, friendsInvited){
       if(err) throw err;
-      var friendIDs = [];
-      userFriends.forEach(friend =>{
-        friendIDs.push(Object.values(friend));
+      connection.query(`SELECT inviter_id, date_connected FROM friends WHERE invitee_id = ${user_id};`, function(err, friendsAccepted){
+        if(err) throw err;
+        var allFriends = (function(){
+          var extracted = [];
+          friendsInvited.forEach(friend => {
+            extracted.push(Object.values(friend));
+          })
+          friendsAccepted.forEach(friend => {
+            extracted.push(Object.values(friend));
+          })
+          return extracted;
+        })();
+        resolve(allFriends);
       })
-      resolve(friendIDs);
-    })
-  });
+    });
+  })
 }
 
 function getAllUserFriendRequests(user_id){
+// SELECT invitation_id, invitation_sender FROM friend_invitations WHERE invitation_reciever = ${user_id};
   return new Promise(resolve => {
-    connection.query(`SELECT invitation_id, invitation_sender FROM friend_invitations WHERE invitation_reciever = ${user_id};`, (err, invitations) => {
+    connection.query(`SELECT invitation_id, inviter_id FROM friend_invitations WHERE invitee_id = ${user_id};`, (err, invitations) => {
       if(err) throw err;
       var friendInvitations = [];
       invitations.forEach(invitation => {
@@ -645,7 +668,7 @@ app.get('/activate', function(req, res) {
 //   })
 // });
 
-app.post('/getUserGroups', postData.none(), function(req,res){
+app.post('/getUserGroups',  function(req,res){
   var user_id = req.body.user_id;
   var filter = parseInt(req.body.filter);
 
@@ -703,69 +726,39 @@ app.post('/getUserGroups', postData.none(), function(req,res){
   }
 });
 
-app.post('/getUserFriends', postData.none(), function(req,res){
-  var user_id = req.body.user_id;
-  var filter = req.body.filter;
-
-  if(filter == 0){
-    getAllUserFriends(user_id).then(allFriends =>{
-      if(allFriends.length != 0){
-        (async function(){
-          var friendsInfo = [];
-          for(var i=0; i < allFriends.length; i++){
-            var friendInfo = [allFriends[i][0]];
-            var Info = await getFriendInfo(allFriends[i][0]);
-            Info.forEach(info =>{friendInfo.push(info)});
-            friendInfo.push(allFriends[i][1]);
-            friendsInfo.push(friendInfo);
-          }
-          return friendsInfo;
-        })().then(Info => {
-          res.json({friends:Info});
-        })
-      }else{
-        res.json({friends:null});
-      }
-    })
-  }else if(filter == 1){
-
-  }else if(filter == 2){
-
-  }
-
-});
-
-app.post('/getUserInvitations', function(req,res){
+app.post('/getUserFriends', function(req, res){
   var userData = req.body.userForm;
   var user_id = userData['user_id'];
+  var filter_type = userData['filter_type'];
 
-  getAllUserFriendRequests(user_id).then(allRequests => {
-    if(allRequests.length){
+  if(filter_type === "all"){
+    getAllUserFriends(user_id).then(allUserFriends => {
       (async function() {
-        var processedData = [];
-        for(var i=0; i < allRequests.length; i++){
-          var requester = allRequests[i][1];
-          var requesterData = await getFriendInfo(requester);
-          requesterData.push(allRequests[i][0]);
-          processedData.push(requesterData);
+        for(var i = 0; i < allUserFriends.length; i++){
+          allUserFriends[i] = Object.values(await getFriendInfo(allUserFriends[i][0])).concat(allUserFriends[i][1]);
         }
-        return processedData;
-      })().then(processedData => {
-        res.json({requests:processedData});
-      })    
-    }else{
-      res.json({requests:[]});
-    }
-  })
-})
+        res.json({friends : allUserFriends});
+      })();
+    })
+  }else if(filter_type === "online"){
 
+  }else if(filter_type === "pending"){
+    getAllUserFriendRequests(user_id).then(allInvitations => {
+      (async function() {
+        for(var i = 0; i < allInvitations.length; i++){
+          allInvitations[i] = [allInvitations[i][0]].concat(Object.values(await getFriendInfo(allInvitations[i][1])));
+        }
+        res.json({friends : allInvitations});
+      })();
+    })
+  }
+});
 
 app.post('/sendFriendInvitation', function(req,res){
   var userData = req.body.userForm;
   var user_id = userData['user_id'];
   var invitee_name = userData['invitee_name'];
   var invitee_tag = userData['invitee_tag'];
-
   connection.connect(()=>{
     if(connection.state !== "disconnected"){
       try{
@@ -773,16 +766,23 @@ app.post('/sendFriendInvitation', function(req,res){
           if(err) {throw err;}
           else if(result.length){
             var invitee_id = Object.values(result[0]);
-            connection.query(`SELECT invitation_id FROM friend_invitations WHERE invitation_sender = ${user_id} AND invitation_reciever = ${invitee_id};`, (err,result)=>{
+            connection.query(`SELECT invitation_id FROM friend_invitations WHERE inviter_id = ${user_id} AND invitee_id = ${invitee_id};`, (err,result)=>{
               if(err){throw err;}
               else if(!result.length){
-                connection.query(`INSERT INTO friend_invitations (invitation_sender, invitation_reciever) VALUES(${user_id},${invitee_id});`, (err, result)=>{
-                  if(err){throw err;}
-                  else{
-                    connection.query("SELECT LAST_INSERT_ID()", (err, result)=>{
+                connection.query(`SELECT connection_id FROM friends WHERE (inviter_id = ${user_id} AND invitee_id = ${invitee_id}) OR (inviter_id = ${invitee_id} AND invitee_id = ${user_id});`, (err, result) => {
+                  if(err) throw err;
+                  else if(!result.length){
+                    connection.query(`INSERT INTO friend_invitations (inviter_id, invitee_id) VALUES (${user_id},${invitee_id});`, (err, result)=>{
                       if(err){throw err;}
-                      res.json({status:'success',invitation_id:Object.values(result[0])});
+                      else{
+                        connection.query("SELECT LAST_INSERT_ID()", (err, result)=>{
+                          if(err){throw err;}
+                          res.json({status:'success',invitation_id:Object.values(result[0])});
+                        })
+                      }
                     })
+                  }else{
+                    res.json({status:'failed',reason:'connectionExists'});
                   }
                 })
               }else{
@@ -808,15 +808,17 @@ app.post('/answerFriendRequest', function(req,res) {
   var user_id = userData['user_id'];
   var invitation_id = userData['invitation_id'];
   var user_response = userData['user_response'];
-
+// SELECT invitation_sender FROM friend_invitations WHERE invitation_id = ${invitation_id};
+// INSERT INTO friends (user_id, friend_id) VALUES (${sender_id},${user_id});
+// DELETE FROM friend_invitations WHERE invitation_id = ${invitation_id};
   connection.connect(()=>{
     if(connection.state != "disconnected"){
       try{
         if(user_response){
-          connection.query(`SELECT invitation_sender FROM friend_invitations WHERE invitation_id = ${invitation_id};`, (err, result) => {
+          connection.query(`SELECT inviter_id FROM friend_invitations WHERE invitation_id = ${invitation_id};`, (err, result) => {
             if(err) throw err;
             var sender_id = Object.values(result[0]);
-            connection.query(`INSERT INTO friends (user_id, friend_id) VALUES (${sender_id},${user_id});`, (err) => {
+            connection.query(`INSERT INTO friends (inviter_id, invitee_id) VALUES (${sender_id},${user_id})`, (err) => {
               if(err) throw err;
             })
           })
@@ -851,7 +853,7 @@ app.post('/uploadProfileImg', function(req,res){
   })
 })
 
-app.post('/updateUsername', postData.none(), function(req, res){
+app.post('/updateUsername',  function(req, res){
   var user_id = req.body.user_id;
   var givenPword = req.body.verifyPword;
   var newUsername = req.body.newUsername;
@@ -882,7 +884,7 @@ app.post('/updateUsername', postData.none(), function(req, res){
   })
 })
 
-app.post('/updatePassword', postData.none(), function(req,res){
+app.post('/updatePassword',  function(req,res){
   var user_id = req.body.user_id;
   var newPword = req.body.newPword;
   var verifyPword = req.body.verifyPword;
@@ -902,7 +904,7 @@ app.post('/updatePassword', postData.none(), function(req,res){
   })
 })
 
-app.post('/updateEmail', postData.none(), function(req,res){
+app.post('/updateEmail',  function(req,res){
   var user_id = req.body.user_id;
   var newEmail = req.body.newEmail;
   var verifyPword = req.body.verifyPword;
@@ -926,7 +928,7 @@ app.post('/updateEmail', postData.none(), function(req,res){
   })
 })
 
-app.post('/updateTag', postData.none(), function(req,res){
+app.post('/updateTag',  function(req,res){
   var user_id = req.body.user_id;
   var newTag = req.body.newTag;
   var verifyPword = req.body.verifyPword;

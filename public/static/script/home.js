@@ -87,7 +87,7 @@ function groupHiddenInfoHide(){
     }
 }
 
-function createFriendItem(friendName,friendImg){
+function createFriendItem(friendName,friendTag, friendImg, dateConnected){
     let friendList = document.getElementsByClassName("userFriendsCont")[0];
 
     let friendItem = document.createElement("div");
@@ -96,7 +96,7 @@ function createFriendItem(friendName,friendImg){
     let friendImgCont = document.createElement("div");
     friendImgCont.setAttribute("class","friendImgCont");
     let friendImgObj = document.createElement("img");
-    friendImgObj.setAttribute("src",`${friendImg}`);
+    friendImgObj.setAttribute("src",`./content/uploads/userProfiles/${friendImg}`);
     friendImgCont.appendChild(friendImgObj);
     friendItem.appendChild(friendImgCont);
 
@@ -148,7 +148,7 @@ function answerFriendRequest(el, userResponse){
     })
 }
 
-function createPendingFriendItem(pendingFriendName, pendingFriendTag, pendingFriendImg, invitationID){
+function createPendingFriendItem(invitationID, pendingFriendName, pendingFriendTag, pendingFriendImg){
     let friendList = document.getElementsByClassName("userFriendsCont")[0];
 
     let pendingFriendItem = document.createElement("div");
@@ -210,8 +210,7 @@ function scrollFriendList(scrollDirection){
 }
 
 function updateFriendFilter(el){
-    var friendFilterCont = document.getElementsByClassName("friendFilters")[0];
-    var allFilters = friendFilterCont.getElementsByClassName("friendFilterItem");
+    var allFilters = document.getElementsByClassName("friendFilterItem");
     var currentFilter = (()=>{
         for(var i=0; i < allFilters.length; i++){
             if(allFilters[i].classList.contains("selectedFriendFilter")){
@@ -223,15 +222,56 @@ function updateFriendFilter(el){
     if(currentFilter !== el){
         currentFilter.classList.remove("selectedFriendFilter");
         el.classList.add("selectedFriendFilter");
-        
-        if(currentFilter === 0){
-
-        }else if(currentFilter === 1){
-
-        }else{
-            getFriendInvitations();
-        }
+        getUserFriends();
     }
+}
+
+function getUserFriends(){
+    var friendFilters = document.getElementsByClassName("friendFilterItem");
+    var friendList = document.getElementsByClassName("userFriendsCont")[0];
+    var selectedFriendFilter = (function(){
+        if(friendFilters[0].classList.contains('selectedFriendFilter')){
+            return "all";
+        }else if(friendFilters[1].classList.contains('selectedFriendFilter')){
+            return "online";
+        }else if(friendFilters[2].classList.contains('selectedFriendFilter')){
+            return "pending";
+        }else{
+            return -1;
+        }
+    })();
+
+    while(friendList.childElementCount){
+        friendList.removeChild(friendList.firstChild)
+    }
+
+    var userData = {
+        'user_id' : localStorage.getItem('user_id'),
+        'filter_type' : selectedFriendFilter,
+    }
+    var url = '/getUserFriends';
+    fetch(url, {
+        method : 'POST',
+        headers : {
+            'Content-Type' : 'application/json',
+        },
+        body : JSON.stringify({'userForm' : userData})
+    })
+    .then((response) => response.json())
+    .then((data) => {
+       
+        if(selectedFriendFilter !== "pending"){
+            // data format: 'user_name', 'user_tag', 'user_img', 'date_connected'
+            data['friends'].forEach(friend => {
+                createFriendItem(friend[0],friend[1],friend[2],friend[3]);
+            })
+        }else{
+             // data format: 'invitation_id', 'user_name', 'user_tag', 'user_img'
+            data['friends'].forEach(pendingFriend => {
+                createPendingFriendItem(pendingFriend[0], pendingFriend[1], pendingFriend[2], pendingFriend[3]);
+            })
+        }
+    })
 }
 
 function getFriendInvitations(){
@@ -334,6 +374,8 @@ document.getElementsByClassName("addFriendForm")[0].addEventListener("submit", f
                             return "User with those credentials doesn't exist";
                         }else if(data['reason'] === "invitationExists"){
                             return "An invitation to this user has already been sent";
+                        }else if(data['reason'] === "connectionExists"){
+                            return "User is already an existing friend";
                         }else{
                             return "An error has occured, please try again later";
                         }
@@ -543,6 +585,10 @@ function validUsernameCharacters(username){
     }
     return isvalid;
 }
+
+window.addEventListener("load", function(){
+    getUserFriends();
+})
 
 // for(var i=0; i < 15; i++){
 //     createGroupItem(`Test Group #${i}`,100,50,"https://iso.500px.com/wp-content/uploads/2016/03/stock-photo-142984111.jpg");
