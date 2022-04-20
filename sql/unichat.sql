@@ -22,7 +22,7 @@ CREATE TABLE `groups` (
     `date_created` datetime NOT NULL DEFAULT current_timestamp(),
     PRIMARY KEY(`group_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
--- group role : 0:admin 1:member
+-- group role : 1:admin 0:member
 CREATE TABLE `group_members` (
 	`member_id` int(11) NOT NULL,
 	`group_id` int(11) NOT NULL,
@@ -30,21 +30,6 @@ CREATE TABLE `group_members` (
 	`member_role` int(2) DEFAULT 1,
     `favorite_group` int(1) DEFAULT 0
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
-
--- CREATE TABLE `friends` (
---     `connection_id` int(11) AUTO_INCREMENT,
--- 	`user_id` int(11) NOT NULL,
---     `friend_id` int(11) NOT NULL,
---     `date_friended` timestamp NOT NULL DEFAULT current_timestamp(),
---     PRIMARY KEY(`connection_id`)
--- ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
-
--- CREATE TABLE `friend_invitations` (
---     `invitation_id` int(11) NOT NULL AUTO_INCREMENT,
---     `invitation_sender` int(11) NOT NULL,
---     `invitation_reciever` int(11) NOT NULL
---     PRIMARY KEY(`invitation_id`)
--- ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 CREATE TABLE `friends` (
     `connection_id` int(11) NOT NULL AUTO_INCREMENT,
