@@ -75,7 +75,7 @@ app.get('/tester', function(req, res){
 // })
 
 
-function sendVerifyEmail(user_id, user_email){
+function sendVerifyEmail(user_id, user_email){  // * modified over
 
   verifyEmailFile(user_id,user_email, (data)=>{
     var htmlSend = data;
@@ -94,7 +94,7 @@ function sendVerifyEmail(user_id, user_email){
 
 }
 
-function verifyEmailFile(user_id,user_email, callback){
+function verifyEmailFile(user_id,user_email, callback){   // * modified over
   hashInput(String(user_id), (hashedID)=>{
     var activationLink = `http://localhost/activate?email=`+user_email+'&activationCode='+hashedID;
     readFile(__dirname + '/static/mailing/sentMail.html','utf8', function(err,result){
@@ -148,7 +148,7 @@ var profileFilter = function(req, file, callback){
 var profileUpload = multer({storage: profileStorage, fileFilter: profileFilter}).single('fileToUpload');
 var postData = multer();
 
-app.post('/loginUser', function(req,res){
+app.post('/loginUser', function(req,res){   // modified over
   var userData = req.body.userForm;
   var user_email = userData['email'];
   var user_password = userData['password'];
@@ -188,7 +188,7 @@ app.post('/loginUser', function(req,res){
   })
 });
 
-app.post('/signupUser', function(req,res){
+app.post('/signupUser', function(req,res){  // * copied over
   var userData = req.body.userForm;
   var user_name = userData['username'];
   var user_email = userData['email'];
@@ -230,7 +230,7 @@ app.post('/signupUser', function(req,res){
   })
 });
 
-app.post('/resendActivation', function(req, res) {
+app.post('/resendActivation', function(req, res) {  // * copied over
   var userData = req.body.resendForm;
   var resendEmail = userData['resendEmail'];
   var resendLink = userData['resendLink'];
@@ -446,9 +446,8 @@ function getUserFavoriteGroups(user_id){  // * copied over
   })
 }
 
-// ----------------- last left off marker ------------------------------
 
-function getUserMemberGroups(user_id){
+function getUserMemberGroups(user_id){  // * skipped over
   return new Promise(resolve=>{
     connection.query(`SELECT group_id FROM group_members WHERE member_id=${user_id};`, function(err, userGroups){
       if(err) throw err;
@@ -461,7 +460,7 @@ function getUserMemberGroups(user_id){
   })
 }
 
-function getAllUserGroups(user_id){
+function getAllUserGroups(user_id){   // * modified over
   return new Promise((resolve,reject)=>{
     setTimeout(() => {
       var groupIDs = [];
@@ -494,7 +493,7 @@ function getAllUserGroups(user_id){
   })
 }
 
-function getAllUserFriends(user_id){
+function getAllUserFriends(user_id){  // copied over
   return new Promise(resolve => {
     connection.query(`SELECT invitee_id, date_connected FROM friends WHERE inviter_id = ${user_id};`, function(err, friendsInvited){
       if(err) throw err;
@@ -516,7 +515,7 @@ function getAllUserFriends(user_id){
   })
 }
 
-function getAllUserFriendRequests(user_id){
+function getAllUserFriendRequests(user_id){   // * copied over
   return new Promise(resolve => {
     connection.query(`SELECT invitation_id, inviter_id FROM friend_invitations WHERE invitee_id = ${user_id};`, (err, invitations) => {
       if(err) throw err;
@@ -529,7 +528,7 @@ function getAllUserFriendRequests(user_id){
   });
 }
 
-function getFriendInfo(user_id){
+function getFriendInfo(user_id){  // * copied over
   return new Promise((resolve,reject) =>{
     setTimeout(() => {
       (async  function(){
@@ -550,7 +549,7 @@ function getFriendInfo(user_id){
   });
 }
 
-io.on('connection', (socket) => {
+io.on('connection', (socket) => {   // * copied over
   // socket.on('loginUser', (user_info) => {
   //   verifyLogin(Object.values(user_info));
   // });
@@ -582,7 +581,7 @@ io.on('connection', (socket) => {
 
 });
 
-app.get('/activate', function(req, res) {
+app.get('/activate', function(req, res) { // * modified over
   var user_email = req.query.email;
   var activationCode = req.query.activationCode;
 
@@ -621,41 +620,6 @@ app.get('/activate', function(req, res) {
     }
   })
 });
-
-// app.get('/activate', function(req,res){
-//   var user_email = req.query.email;
-//   var activationCode = req.query.activationCode;
-//   connection.connect(()=>{
-//     if(connection.state !== "disconnected"){
-//       if(typeof(user_email) !== "undefined" && typeof(activationCode) !== "undefined"){
-//         getUserId(user_email, (userID)=>{
-//           var user_id = userID;
-//           getUserInfo(user_id, (userInfo)=>{
-//             var accountStatus = userInfo[6];
-//             if(accountStatus === 0){
-//               validateHash(String(user_id),String(activationCode),(validation)=>{
-//                 if(validation){
-//                   connection.query(`UPDATE users SET user_active = 1 WHERE user_id=${user_id};`, function(err){
-//                     if(err) throw err;
-//                     res.redirect('/SignUpPage/userActivation.html?status=1');
-//                   });
-//                 }else{
-//                   res.redirect('/SignUpPage/userActivation.html?status=2');
-//                 }
-//               });
-//             }else{
-//               res.redirect('/SignUpPage/userActivation.html?status=3');
-//             }
-//           });
-//         })
-//       }else{
-//         res.redirect('/SignUpPage/userActivation.html?status=4');
-//       }
-//     }else{
-//       res.redirect('/SignUpPage/userActivation.html?status=5')
-//     }
-//   })
-// });
 
 app.post('/getUserGroups',  function(req,res){
   var userData = req.body.userForm;
@@ -727,7 +691,7 @@ app.post('/getUserGroups',  function(req,res){
   // }
 });
 
-app.post('/createGroup', function(req, res){
+app.post('/createGroup', function(req, res){  // * modified over
   var userData = req.body.userForm;
   var user_id = userData['user_id'];
   var group_name = userData['group_name'];
@@ -758,7 +722,7 @@ app.post('/createGroup', function(req, res){
   })
 })
 
-app.post('/getUserFriends', function(req, res){
+app.post('/getUserFriends', function(req, res){   // * modified over
   var userData = req.body.userForm;
   var user_id = userData['user_id'];
   var filter_type = userData['filter_type'];
@@ -786,7 +750,7 @@ app.post('/getUserFriends', function(req, res){
   }
 });
 
-app.post('/sendFriendInvitation', function(req,res){
+app.post('/sendFriendInvitation', function(req,res){  // * modified over
   var userData = req.body.userForm;
   var user_id = userData['user_id'];
   var invitee_name = userData['invitee_name'];
@@ -835,7 +799,7 @@ app.post('/sendFriendInvitation', function(req,res){
   })
 });
 
-app.post('/answerFriendRequest', function(req,res) {
+app.post('/answerFriendRequest', function(req,res) {  // * modified over
   var userData = req.body.userForm;
   var user_id = userData['user_id'];
   var invitation_id = userData['invitation_id'];
@@ -883,7 +847,7 @@ app.post('/uploadProfileImg', function(req,res){
   })
 })
 
-app.post('/updateUsername',  function(req, res){
+app.post('/updateUsername',  function(req, res){  // * modified over
   var user_id = req.body.user_id;
   var givenPword = req.body.verifyPword;
   var newUsername = req.body.newUsername;
@@ -914,7 +878,7 @@ app.post('/updateUsername',  function(req, res){
   })
 })
 
-app.post('/updatePassword',  function(req,res){
+app.post('/updatePassword',  function(req,res){   // * modified over
   var user_id = req.body.user_id;
   var newPword = req.body.newPword;
   var verifyPword = req.body.verifyPword;
@@ -934,7 +898,7 @@ app.post('/updatePassword',  function(req,res){
   })
 })
 
-app.post('/updateEmail',  function(req,res){
+app.post('/updateEmail',  function(req,res){  // * modified over
   var user_id = req.body.user_id;
   var newEmail = req.body.newEmail;
   var verifyPword = req.body.verifyPword;
@@ -958,7 +922,7 @@ app.post('/updateEmail',  function(req,res){
   })
 })
 
-app.post('/updateTag',  function(req,res){
+app.post('/updateTag',  function(req,res){  // * modified over
   var user_id = req.body.user_id;
   var newTag = req.body.newTag;
   var verifyPword = req.body.verifyPword;

@@ -267,7 +267,7 @@ function getUserFriends(){
             })
         }else{
              // data format: 'invitation_id', 'user_name', 'user_tag', 'user_img'
-            data['friends'].forEach(pendingFriend => {
+            data['friendRequests'].forEach(pendingFriend => {
                 createPendingFriendItem(pendingFriend[0], pendingFriend[1], pendingFriend[2], pendingFriend[3]);
             })
         }

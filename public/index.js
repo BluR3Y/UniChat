@@ -76,36 +76,47 @@ app.get('/tester', function(req, res){
 // })
 
 
-function sendVerifyEmail(user_id, user_email){
-
-  verifyEmailFile(user_id,user_email, (data)=>{
-    var htmlSend = data;
-
-    var mailOptions = {
-      from: 'blureyapps@gmail.com',
-      to: user_email,
-      subject: 'Verify Email address',
-      html: htmlSend
-    };
-      transport.sendMail(mailOptions, function(err, info){
-      if(err) throw err;
-      console.log('Email sent: ' + info.response);
-    });
-  });
-
+function sendVerifyEmail(user_id, user_email) {
+    return new Promise((resolve, reject) => {
+        verifyEmailFile(user_id, user_email)
+        .then(data => {
+            var htmlSend = data;
+    
+            var mailOptions = {
+                from : 'blureyapps@gmail.com',
+                to : user_email,
+                subject : 'Verify Email Address',
+                html : htmlSend
+            };
+            transport.sendMail(mailOptions, function(err, info) {
+                if(err) {
+                    reject(err);
+                    return;
+                }
+                console.log('Email sent: ' + info.response);
+                resolve();
+            })
+        })
+    })
 }
 
-function verifyEmailFile(user_id,user_email, callback){
-  hashInput(String(user_id), (hashedID)=>{
-    var activationLink = `http://localhost/activate?email=`+user_email+'&activationCode='+hashedID;
-    readFile(__dirname + '/static/mailing/sentMail.html','utf8', function(err,result){
-      if (err) throw err;
-      var template = Handlebars.compile(result);
-      var context = {link: activationLink};
-      var html = template(context);
-      callback(html);
-    });
-  });
+function verifyEmailFile(user_id, user_email) {
+    return new Promise((resolve, reject) => {
+        hashInput(String(user_id))
+        .then(hashedID => {
+            var activationLink = `http://localhost/activate?email=${user_email}&activationCode=${hashedID}`;
+            readFile(__dirname + '/static/mailing/sentMail.html','utf8', function(err, result) {
+                if(err) {
+                    reject(err);
+                    return;
+                }
+                var template = Handlebars.compile(result);
+                var context = {link : activationLink};
+                var html = template(context);
+                resolve(html);
+            })
+        })
+    })
 }
 
 
@@ -149,8 +160,41 @@ var profileFilter = function(req, file, callback){
 var profileUpload = multer({storage: profileStorage, fileFilter: profileFilter}).single('fileToUpload');
 var postData = multer();
 
+io.on('connection', (socket) => {
+  // socket.on('loginUser', (user_info) => {
+  //   verifyLogin(Object.values(user_info));
+  // });
+  // socket.on('signupUser', (signupInfo) =>{
+  //   signupUser(Object.values(signupInfo));
+  // });
+  // socket.on('group message', (message_data) => {
+  //   message_data.messengerImg = getUserImg(message_data.user_id);
+  //   io.emit('group message', message_data);
+  // });
+
+  // socket.join('testRoom');
+  // socket.on("testingRooms", (msg)=>{
+  //   console.log("msg recieved: "+msg);
+  //   io.to('testRoom').emit('newMsg',msg);
+  // });
+
+  socket.on("joinGroup", function(group){
+    socket.join(group);
+  });
+
+  socket.on('groupMsg',(group, msg)=>{
+    io.to(group).emit('groupMsg',msg);
+  });
+
+  socket.on("leaveGroup", function(group){
+    socket.leave(group);
+  });
+
+});
 
 // --------------------- Essential Functions -----------------------------------
+// SELECT LAST_INSERT_ID(); -- This will get you back the PRIMARY KEY value of the last row that you inserted:
+
 
 function getUserProfileImg(user_id) {
     var file = glob.sync(__dirname+`/static/content/uploads/userProfiles/user-${user_id}.*`);
@@ -170,7 +214,7 @@ function getGroupProfileImg(group_id) {
     }
 }
 
-function findUserID(user_email){
+function getUserID(user_email){
     return new Promise((resolve, reject) => {
         connection.query(`SELECT user_id FROM users WHERE user_email = '${user_email}';`, function(err, result) {
             if(err) {
@@ -187,9 +231,45 @@ function findUserID(user_email){
     })
 }
 
+function verifyPassword(user_id, pword_attempt) {
+    return new Promise((resolve, reject) => {
+        connection.query(`SELECT user_password, login_attempts FROM users WHERE user_id = ${user_id}`, function(err, result) {
+            if(err) {
+                reject(err);
+                return;
+            }
+            var userCredentials = Object.values(result[0]);
+            if(userCredentials[1] < 3) {
+                validateHash(pword_attempt,userCredentials[0])
+                .then(validation => {
+                    if(validation) {
+                        connection.query(`UPDATE users SET login_attempts = 0 WHERE user_id = ${user_id};`, function(err) {
+                            if(err) {
+                                reject(err);
+                                return;
+                            }
+                            resolve({status : "success"});
+                        })
+                    }else{
+                        connection.query(`UPDATE users SET login_attempts = login_attempts + 1 WHERE user_id = ${user_id};`, function(err) {
+                            if(err) {
+                                reject(err);
+                                return;
+                            }
+                            resolve({status : "failed", reason : "invalidPword"});
+                        })
+                    }
+                })
+            }else{
+                resolve({status : "failed", reason : "maxAttempts"});
+            }
+        })
+    })
+}
+
 function getUserInfo(user_id){
     return new Promise((resolve, reject) => {
-        connection.query(`SELECT * FROM users WHERE user_id = ${user_id};`, function(err, result) {
+        connection.query(`SELECT user_name, user_tag FROM users WHERE user_id = ${user_id};`, function(err, result) {
             if(err) {
                 reject(err);
                 return;
@@ -232,20 +312,27 @@ function availableEmail(user_email) {
 
 function generateTag(username) {
     return new Promise((resolve, reject) => {
-        connection.query(`SELECT user_tag FROM users WHERE user_name = '${username}';`, function(err, result) {
+        (async function() {
+            var generated_tag;
+            do {
+                generated_tag = Math.floor(Math.random() * (9999 - 1000) + 1000);
+            }while(!(await validUsernameTagCombo(username, generated_tag)));
+            return generated_tag;
+        })().then(tag => {
+            console.log(tag);
+            resolve(tag);
+        })
+    })
+}
+
+function validUsernameTagCombo(username, tag){
+    return new Promise((resolve, reject) => {
+        connection.query(`SELECT COUNT(user_name) as amount FROM users WHERE user_name='${username}' AND user_tag=${tag};`, function(err, result) {
             if(err) {
                 reject(err);
                 return;
             }
-            var user_tags = [];
-            for(var i = 0; i < result.length; i++)
-                user_tags.push(Object.values(result[i])[0]);
-            
-            var generated_tag = Math.floor(Math.random() * (9999 - 1000) + 1000);
-            while(user_tags.includes(generated_tag)){
-                generated_tag = Math.floor(Math.random() * (9999 - 1000) + 1000);
-            }
-            resolve(generated_tag);
+            resolve(!Object.values(result[0])[0]);
         })
     })
 }
@@ -257,7 +344,7 @@ function hashInput(input) {
                 reject(err);
                 return;
             }
-            bcrypt.hash(input, salt, function(err, result) {
+            bcrypt.hash(input, salt, function(err, hash) {
                 if(err) {
                     reject(err);
                     return;
@@ -371,16 +458,531 @@ function getUserFavoriteGroups(user_id) {
     })
 }
 
+function getAllUserGroups(user_id){
+    return new Promise((resolve, reject) => {
+        connection.query(`SELECT group_id FROM group_members WHERE member_id = ${user_id};`, function(err, result) {
+            if(err) {
+                reject(err);
+                return;
+            }
+            var groups = [];
+            for(var i = 0; i < result.length; i++){
+                groups.push(Object.values(result[i])[0]);
+            }
+            resolve(groups);
+        })
+    })
+}
 
+function sendFriendInvitation(user_id, invitee_name, invitee_tag) {
+    return new Promise((resolve, reject) => {
+        connection.query(`SELECT user_id FROM users WHERE user_name = '${invitee_name}' AND user_tag = '${invitee_tag}';`, function(err, result) {
+            if(err) {
+                reject(err);
+                return;
+            }
+            if(result.length){
+                var invitee_id = Object.values(result[0])[0];
+                connection.query(`SELECT invitation_id FROM friend_invitations WHERE inviter_id = ${user_id} AND invitee_id = ${invitee_id};`, function(err, result) {
+                    if(err) {
+                        reject(err);
+                        return;
+                    }else if(!result.length){
+                        connection.query(`SELECT connection_id FROM friends WHERE (inviter_id = ${user_id} AND invitee_id = ${invitee_id}) OR (inviter_id = ${invitee_id} AND invitee_id = ${user_id});`, function(err, result) {
+                            if(err) {
+                                reject(err);
+                                return;
+                            }else if(!result.length){
+                                connection.query(`INSERT INTO friend_invitations (inviter_id, invitee_id) VALUES (${user_id},${invitee_id});`, function(err) {
+                                    if(err) {
+                                        reject(err);
+                                        return;
+                                    }
+                                    connection.query("SELECT LAST_INSERT_ID()", function(err, result) {
+                                        if(err) {
+                                            reject(err);
+                                            return;
+                                        }
+                                        resolve({status:'success',invitation_id:Object.values(result[0])});
+                                    })
+                                })
+                            }else{
+                                resolve({status:'failed',reason:'connectionExists'});
+                            }
+                        })
+                    }else{
+                        resolve({status:'failed',reason:'invitationExists'});
+                    }
+                    
+                })
+            }else{
+                resolve({status:'failed', reason:'userDNE'});
+            }
+        })
+    })
+}
 
-// -----------------------------------------------------------------------
+// ------------------------------- Friends Related Functions -------------------------------------
+
+function getAllUserFriends(user_id) {
+    return new Promise((resolve, reject) => {
+        connection.query(`SELECT invitee_id, date_connected FROM friends WHERE inviter_id = ${user_id};`, function(err, invited) {
+            if(err) {
+                reject(err);
+                return;
+            }
+            connection.query(`SELECT inviter_id, date_connected FROM friends WHERE invitee_id = ${user_id};`, function(err, accepted) {
+                if(err) {
+                    reject(err);
+                    return;
+                }
+                var allFriends = [];
+                invited.forEach(friend => {
+                    allFriends.push(Object.values(friend));
+                })
+                accepted.forEach(friend => {
+                    allFriends.push(Object.values(friend));
+                })
+                resolve(allFriends);
+            })
+        })
+    })
+}
+
+function getAllUserFriendRequests(user_id){
+    return new Promise((resolve, reject) => {
+        connection.query(`SELECT invitation_id, inviter_id FROM friend_invitations WHERE invitee_id = ${user_id};`, function(err, result) {
+            if(err) {
+                reject(err);
+                return;
+            }
+            var invitations = [];
+            result.forEach(invitation => {
+                invitations.push(Object.values(invitation));
+            })
+            resolve(invitations);
+        })
+    })
+}
+
+function getFriendInfo(user_id) {
+    return new Promise((resolve, reject) => {
+        connection.query(`SELECT user_name, user_tag FROM users WHERE user_id = ${user_id};`, function(err, result) {
+            if(err) {
+                reject(err);
+                return;
+            }
+            var friendInfo = Object.values(result[0]);
+            friendInfo.push(getUserProfileImg(user_id));
+            resolve(friendInfo);
+        })
+    })
+}
+
+// ------------------------------------------ Application POST/GET Requests ---------------------------------------------
 app.post('/loginUser', function(req,res) {
     var userData = req.body.userForm;
     var user_email = userData['email'];
     var user_password = userData['password'];
 
-    getUserCreatedGroups(111)
-    .then(data => console.log(data))
+    connection.connect(() => {
+        if(connection.state != "disconnected") {
+            getUserID(user_email)
+            .then(user_id => {
+                if(user_id){
+                    verifyPassword(user_id, user_password)
+                    .then(validation => {
+                        if(validation['status'] === "success") {
+                            getUserInfo(user_id)
+                            .then(user_info => {
+                                res.json({status : "success", user_id : user_id, user_name : user_info[0], user_tag : user_info[1], user_img : user_info[2]});
+                            })
+                        }else{
+                            res.json(validation);
+                        }
+                    })
+                }else{
+                 res.json({status : "failed", reason : "userDNE"});   
+                }
+            })
+        }else{
+            res.json({status : "failed", reason : "dbConnection"});
+        }
+    })
+})
+
+app.post('/signupUser', function(req, res) {
+    var userData = req.body.userForm;
+    var user_name = userData['username'];
+    var user_email = userData['email'];
+    var user_password = userData['password'];
+
+    connection.connect(() => {
+        if(connection.state != "disconnected") {
+            availableUsername(user_name)
+            .then(username_validation => {
+                if(username_validation) {
+                    availableEmail(user_email)
+                    .then(email_validation => {
+                        if(email_validation) {
+                            generateTag(user_name)
+                            .then(user_tag => {
+                                hashInput(user_password)
+                                .then(hash_pword => {
+                                    createUser(user_name, user_tag, user_email, hash_pword)
+                                    .then(user_id => {
+                                        if(user_id) {
+                                            sendVerifyEmail(user_id[0], user_email);
+                                            hashInput(user_email)
+                                            .then(resendLink => {
+                                                res.json({status : "success", resendEmail : user_email, resendLink : resendLink});
+                                            })
+                                        }else{
+                                            res.json({status : "failed", reason : "creatingUser"});
+                                        }
+                                    })
+                                })
+                            })
+                        }else{
+                            res.json({status : "failed", reason : "takenEmail"});
+                        }
+                    })
+                }else{
+                    res.json({status : "failed", reason: "taken"})
+                }
+            })
+        }else{
+            res.json({status : "failed", reason: "dbConnection"});
+        }
+    })
+})
+
+app.post('/resendActivation', function(req, res) {
+    var userData = req.body.resendForm;
+    var resendEmail = userData['resendEmail'];
+    var resendLink = userData['resendLink'];
+
+    validateHash(resendEmail, resendLink)
+    .then(validation => {
+        if(validation) {
+            connection.query(`SELECT user_id FROM users WHERE user_email = '${resendEmail}';`, function(err, result) {
+                if(err) {throw err;}
+                var user_id = Object.values(result[0])[0];
+                sendVerifyEmail(user_id, resendEmail)
+                .then(() => {
+                    res.json({status : "success"});
+                })
+            })
+        }else{
+            res.json({status : "failed", reason : "invalidResend"});
+        }
+    })
+})
+
+app.get('/activate', function(req, res) {
+    var user_email = req.query.email;
+    var activationCode = req.query.activationCode;
+
+    connection.connect(() => {
+        if(connection.state != "disconnected") {
+            if(user_email !== undefined && activationCode !== undefined) {
+                getUserID(user_email)
+                .then(user_id => {
+                    if(user_id) {
+                        connection.query(`SELECT user_active FROM users WHERE user_id = ${user_id};`, function(err, result) {
+                            if(err) {throw err;}
+                            else if(!Object.values(result[0])[0]){
+                                validateHash(String(user_id), activationCode)
+                                .then(validation => {
+                                    if(validation) {
+                                        connection.query(`UPDATE users SET user_active = 1 WHERE user_id = ${user_id};`, function(err) {
+                                            if(err) {throw err;}
+                                            res.render('templates/userActivation', {status: 'success'});
+                                        })
+                                    }else{
+                                        res.render('templates/userActivation', {status: 'failed', reason: "The activation code is invalid"});
+                                    }
+                                })
+                            }else{
+                                res.render('templates/userActivation', {status: 'failed', reason: "Your account has already been activated."});
+                            }
+                        })
+                    }else{
+                        res.render('templates/userActivation', {status: 'failed', reason: "Provided Email is not associated with any user"});
+                    }
+                })
+            }else{
+                res.render('templates/userActivation', {status: 'failed', reason: "Missing Fields In Activation Link"});
+            }
+        }else{
+            res.render('templates/userActivation', {status: 'failed', reason: "Failed to connect to Database. Please try again later."});
+        }
+    })
+})
+
+// -------------------------- Friends POST/GET Requests -------------------------------------
+
+app.post('/sendFriendInvitation', function(req, res) {
+    var userData = req.body.userForm;
+    var user_id = userData['user_id'];
+    var invitee_name = userData['invitee_name'];
+    var invitee_tag = userData['invitee_tag'];
+
+    connection.connect(() => {
+        if(connection.state !== "disconnected") {
+            sendFriendInvitation(user_id, invitee_name, invitee_tag)
+            .then(invitationStatus => {
+                res.json(invitationStatus);
+            })
+            .catch(() => {
+                res.json({status : "failed", reason : "error"});
+            })
+        }else{
+            res.json({status : "failed", reason : "dbConnection"});
+        }
+    })
+})
+
+app.post('/answerFriendRequest', function(req, res) {
+    var userData = req.body.userForm;
+    var user_id = userData['user_id'];
+    var invitation_id = userData['invitation_id'];
+    var user_response = userData['user_response'];
+
+    connection.connect(() => {
+        if(connection.state != "disconnected") {
+            (function() {
+                return new Promise((resolve, reject) => {
+                    if(user_response) {
+                        connection.query(`SELECT inviter_id FROM friend_invitations WHERE invitation_id = ${invitation_id};`, function(err, result) {
+                            if(err) {
+                                reject(err);
+                                return;
+                            }
+                            var sender_id = Object.values(result[0])[0];
+                            connection.query(`INSERT INTO friends (inviter_id, invitee_id) VALUES (${sender_id},${user_id})`, function(err) {
+                                if(err) {
+                                    reject(err);
+                                    return;
+                                }
+                            })
+                        })
+                    }
+                    connection.query(`DELETE FROM friend_invitations WHERE invitation_id = ${invitation_id};`, function(err) {
+                        if(err) {
+                            reject(err);
+                            return;
+                        }
+                        resolve();
+                    })
+                })
+            })()
+            .then(() => {
+                res.json({status : "success"});
+            })
+            .catch(() => {
+                res.json({status : "failed", reason : "error"});
+            })
+        }else{
+            res.json({status : "failed", reason : "dbConnection"});
+        }
+    })
+})
+
+app.post('/getUserFriends', function(req, res) {
+    var userData = req.body.userForm;
+    var user_id = userData['user_id'];
+    var filter_type = userData['filter_type'];
+
+    if(filter_type === "all") {
+        getAllUserFriends(user_id)
+        .then(allUserFriends => {
+            (async function() {
+                var allFriendsInfo = [];
+                for(var i = 0; i < allUserFriends.length; i++){
+                    allFriendsInfo.push(await getFriendInfo(allUserFriends[i][0]));
+                }
+                return allFriendsInfo;
+            })().then(user_friends => {
+                res.json({friends : user_friends});
+            })
+        })
+    }else if(filter_type === "online") {
+
+    }else if(filter_type === "pending") {
+        getAllUserFriendRequests(user_id)
+        .then(allFriendRequests => {
+            (async function() {
+                var allRequestInfo = [];
+                for(var i = 0; i < allFriendRequests.length; i++) {
+                    var requestInfo = await getFriendInfo(allFriendRequests[i][1]);
+                    requestInfo.unshift(allFriendRequests[i][0]);
+                    allRequestInfo.push(requestInfo);
+                }
+                return allRequestInfo;
+            })().then(requests => {
+                res.json({friendRequests : requests});
+            })
+        })
+    }
+})
+
+// -------------------------- Group POST/GET Requests ---------------------------------------
+
+app.post('/createGroup', function(req, res) {
+    var userData = req.body.userForm;
+    var user_id = userData['user_id'];
+    var group_name = userData['group_name'];
+    var group_desc = userData['group_desc'];
+
+    connection.connect(() => {
+        if(connection.state !== "disconnected") {
+            createGroup(user_id, group_name, group_desc)
+            .then(() => {
+                res.json({status : "success"});
+            })
+        }else{
+            res.json({status : "failed", reason : "dbConnection"});
+        }
+    })
+})
+
+// ------------------------ User Account POST/GET Requests -------------------------------------
+
+app.post('/updateUsername', function(req, res) {
+    var user_id = req.body.user_id;
+    var givenPword = req.body.verifyPword;
+    var newUsername = req.body.newUsername;
+
+    connection.connect(() => {
+        if(connection.state !== "disconnected") {
+            getUserInfo(user_id)
+            .then(user_info => {
+                verifyPassword(user_id, givenPword)
+                .then(pword_validation => {
+                    if(pword_validation) {
+                        availableUsername(newUsername)
+                        .then(username_validation => {
+                            if(username_validation) {
+                                validUsernameTagCombo(newUsername, user_info[1])
+                                .then(combo_validation => {
+                                    if(combo_validation) {
+                                        connection.query(`UPDATE users SET user_name = '${newUsername}' WHERE user_id = ${userInfo[0]};`, function(err) {
+                                            if(err) {
+                                                res.json({status : "failed", reason : "error"});
+                                            }
+                                            res.json({status : "success"});
+                                        })
+                                    }else{
+                                        res.json({status: "failed", reason: "invalidNameTagCombo"});
+                                    }
+                                })
+                            }else{
+                                res.json({status: "failed", reason: "takenUsername"});
+                            }
+                        })
+                    }else{
+                        res.json({status: "failed", reason: "invalidPword"});
+                    }
+                })
+            })
+        }else{
+            res.json({status : "failed", reason : "dbConnection"});
+        }
+    })
+})
+
+app.post('/updatePassword', function(req, res) {
+    var user_id = req.body.user_id;
+    var newPword = req.body.newPword;
+    var verifyPword = req.body.verifyPword;
+
+    connection.connect(() => {
+        if(connection.state !== "disconnected") {
+            verifyPassword(user_id, verifyPword)
+            .then(pword_validation => {
+                if(pword_validation) {
+                    hashInput(newPword)
+                    .then(hashedPword => {
+                        connection.query(`UPDATE users SET user_password = '${hashedPword}' WHERE user_id = ${user_id};`, function(err) {
+                            if(err) {
+                                res.json({status : "failed", reason : "error"});
+                            }
+                            res.json({status : "success"});
+                        })
+                    })
+                }else{
+                    res.json({status: "failed", reason: "invalidPword"});
+                }
+            })
+        }else{
+            res.json({status: "failed", reason: "dbConnection"});
+        }
+    })
+})
+
+app.post('/updateEmail', function(req, res) {
+    var user_id = req.body.user_id;
+    var newEmail = req.body.newEmail;
+    var verifyPword = req.body.verifyPword;
+
+    connection.connect(() => {
+        if(connection.state !== "disconnected") {
+            verifyPassword(user_id, verifyPword).then(pword_validation => {
+                if(pword_validation) {
+                    availableEmail(newEmail).then(email_availability => {
+                        if(email_availability) {
+                            connection.query(`UPDATE users SET user_email = '${newEmail}' WHERE user_id = ${user_id};`, function(err) {
+                                if(err) {
+                                    res.json({status : "failed", reason : "error"});
+                                }
+                                res.json({status : "success"});
+                            })
+                        }else{
+                            res.json({status: "failed", reason: "takenEmail"});
+                        }
+                    })
+                }else{
+                    res.json({status: "failed", reason: "invalidPword"});
+                }
+            })
+        }else{
+            res.json({status : "failed", reason : "dbConnection"});
+        }
+    })
+})
+
+app.post('/updateTag', function(req, res) {
+    var user_id = req.body.user_id;
+    var newTag = req.body.newTag;
+    var verifyPword = req.body.verifyPword;
+
+    connection.connect(() => {
+        if(connection.state !== "disconnected") {
+            verifyPassword(user_id, verifyPword).then(pword_validation => {
+                if(pword_validation) {
+                    getUserInfo(user_id).then(user_info => {
+                        validUsernameTagCombo(user_info[0], newTag).then(combo_validation => {
+                            if(combo_validation) {
+                                connection.query(`UPDATE users SET user_tag = ${newTag} WHERE user_id = ${user_id};`, function(err) {
+                                    if(err) {
+                                        res.json({status : "failed", reason : "error"});
+                                    }
+                                    res.json({status : "success"});
+                                })
+                            }else{
+                                res.json({status: "failed", reason: "invalidNameTagCombo"});
+                            }
+                        })
+                    })
+                }else{
+                    res.json({status: "failed", reason: "invalidPword"});
+                }
+            })
+        }else{
+            res.json({status : "failed", reason : "dbConnection"});
+        }
+    })
 })
 
 
